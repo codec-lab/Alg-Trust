@@ -2,8 +2,6 @@
 
 **Explore all possible ways to evaluate arithmetic expressions with interactive visualizations, learner modeling, and reinforcement learning rewards.**
 
-![Python](https://img.shields.io/badge/Python-3.7+-blue)
-![License](https://img.shields.io/badge/License-MIT-green)
 
 ## Overview
 
