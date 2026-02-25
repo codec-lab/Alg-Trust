@@ -1,50 +1,109 @@
 # Expression Evaluation Tree Generator
 
-**Explore all possible ways to evaluate arithmetic expressions with interactive visualizations and reinforcement learning rewards.**
+**Explore all possible ways to evaluate arithmetic expressions with interactive visualizations, learner modeling, and reinforcement learning rewards.**
 
 ![Python](https://img.shields.io/badge/Python-3.7+-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ## Overview
 
-This tool generates **all possible evaluation paths** for arithmetic expressions, ignoring traditional BODMAS/PEMDAS rules to explore every evaluation order. It creates an interactive tree diagram showing:
+This tool generates **all possible evaluation paths** for arithmetic expressions, exploring every evaluation order regardless of BODMAS/PEMDAS rules. It includes a **Learner System** that models different types of students—from experts who follow BODMAS perfectly to novices who make common mistakes.
 
-- 🌳 All possible intermediate states  
-- ✅ Correct operations (following BODMAS) highlighted in **green** with `+1` reward
-- ❌ Incorrect operations highlighted in **red** with `-1` reward
-- 📊 Cumulative rewards for each evaluation path
-- 🎯 Final results from different evaluation paths
+### Key Features
+
+- **Evaluation Tree Visualization**: See all possible ways to evaluate an expression
+- **Learner Modeling**: Simulate how different types of students solve expressions
+- **Policy System**: Define learner behaviors through composable policy rules
+- **Bracket Handling**: Support for distribution, evaluation inside brackets, and common mistakes (bracket dropping)
+- **BODMAS Rewards**: Track correct (+1) vs incorrect (-1) operations for RL training
 
 ### Example
 
 For the expression `3+2*4`:
 
-| Path | Order | Calculation | Result | Total Reward |
-|------|-------|-------------|--------|--------------|
-| Path 1 | `*` first (BODMAS correct) | `3+(2*4)` = `3+8` | **11** | +2 |
-| Path 2 | `+` first (incorrect) | `(3+2)*4` = `5*4` | **20** | -2 |
+| Learner Profile | Behavior | Result | Reasoning |
+|----------------|----------|--------|-----------|
+| **expert** | `*` first → `+` | **11** | Follows BODMAS correctly |
+| **addition_first** | `+` first → `*` | **20** | Believes addition has higher precedence |
+| **left_to_right_only** | `+` first → `*` | **20** | Ignores precedence, goes left-to-right |
 
-The tool visualizes both paths, showing which follow BODMAS rules through color-coded edges and rewards!
+## Core Components
 
-## Features
+### 1. Learner System (`learner.py`)
 
-✅ **Operators**: `+`, `-`, `*`, `/`, `^` (power)  
-✅ **Parentheses**: Full support for nested parentheses like `(2+3)*(4+5)`  
-✅ **Negative numbers**: Handles expressions like `-3+4*2`  
-✅ **BODMAS/PEMDAS rewards**: +1 for correct operations, -1 for incorrect  
-✅ **Dependency-aware**: Understands when operations are independent (can be done in parallel)  
-✅ **Interactive HTML visualization** with Plotly  
-✅ **Cumulative reward tracking** for each path  
+A **Learner** is defined by:
+- **Precedence Map**: Their belief about operator ordering (e.g., BODMAS, flat, addition-first)
+- **Policies**: Rules that filter valid actions (conjunctively combined)
+
+
+### 2. Policy System (`policies.py`)
+
+Policies are organized into **categories**:
+
+| Category | Description | Policies |
+|----------|-------------|----------|
+| **Precedence** | Operator ordering | `highest_precedence_first`, `no_higher_prec_left`, `no_higher_prec_right` |
+| **Direction** | Tie-breaking for same precedence | `leftmost_first`, `rightmost_first`, `left_to_right_strict`, `right_to_left_strict` |
+| **Bracket Handling** | How to handle brackets | `brackets_first`, `brackets_optional`, `brackets_ignored` |
+| **Action Preference** | Evaluate vs distribute | `prefer_evaluate`, `prefer_distribute` |
+
+The conjunction of policies determines valid actions:
+```
+valid_action = φ₁(s,a,A,P) ∧ φ₂(s,a,A,P) ∧ ... ∧ φₙ(s,a,A,P)
+```
+
+### 3. Preset Learner Profiles
+
+| Profile | Precedence | Description |
+|---------|------------|-------------|
+| `expert` | BODMAS | Follows BODMAS correctly with brackets |
+| `bodmas_correct` | BODMAS | Knows BODMAS precedence and left-to-right rule |
+| `addition_first` | Addition > Mult | Believes addition comes before multiplication (wrong!) |
+| `multiplication_first` | Only * special | Knows multiplication is special, incomplete knowledge |
+| `left_to_right_only` | Flat | Strictly left-to-right, ignores precedence |
+| `right_to_left` | Flat | Right-to-left, ignores precedence (wrong!) |
+| `novice` | Flat | No knowledge - any action is valid |
+| `bracket_ignorer` | Flat | Ignores brackets completely, may drop them |
+| `distributor` | BODMAS | Knows BODMAS but prefers to distribute |
+| `bodmas_wrong_direction` | BODMAS | Knows precedence but goes right-to-left |
+
+### 4. Precedence Maps
+
+| Map | Ordering | Description |
+|-----|----------|-------------|
+| `bodmas` | `^` > `*/` > `+-` | Standard BODMAS/PEMDAS |
+| `addition_first` | `+-` > `^` > `*/` | Addition/subtraction highest (wrong!) |
+| `multiplication_first` | `*` > `/^` > `+-` | Only multiplication is special |
+| `flat` | All equal | No operator precedence |
 
 ## File Structure
 
 ```
 Alg_Trust_NYU/
-├── tokenizer.py        # Parses expressions into tokens
-├── graph_builder.py    # Builds the evaluation tree with rewards
-├── visualizer.py       # Generates interactive HTML visualization
-├── main.py             # Main entry point
-└── README.md           # This file
+├── Core Expression Parsing
+│   ├── tokenizer.py           # Parses expressions into tokens
+│   ├── graph_builder.py       # Original evaluation tree builder
+│   └── graph_builder2.py      # Enhanced builder with bracket distribution
+│
+├── Learner & Policy System
+│   ├── policies.py            # Policy definitions and categories
+│   ├── learner.py             # Learner profiles and creation
+│   └── learner_integration.py # Integration between learners and graphs
+│
+├── Visualization
+│   ├── visualizer.py          # Original HTML visualization (Plotly)
+│   ├── visualizer2.py         # Enhanced visualization
+│   ├── visualizer_tabs.py     # Tab-based visualizer
+│   └── visualizer_vue.py      # Vue.js interactive explorer
+│
+├── Entry Points
+│   ├── main.py                # Basic expression tree generation
+│   └── main2.py               # Advanced with bracket handling
+│
+├── Tests
+│   └── test_policies.py       # Policy system tests
+│
+└── README.md
 ```
 
 ## Installation
@@ -55,174 +114,25 @@ git clone https://github.com/divya603/Alg-Trust.git
 cd Alg-Trust
 
 # Install dependencies
-pip install plotly
+pip install -r requirements.txt
 ```
 
 **Requirements:**
 - Python 3.7+
 - Plotly (for visualization)
-- Modern web browser (for viewing HTML output)
+- web browser (for viewing HTML output)
 
 ## Usage
 
 ### Basic Usage
 
 ```bash
+# Generate evaluation tree
 python main.py "3+2*4"
+
+# With brackets and distribution support
+python main2.py "(2+3)*4"
+
+#Learner
+python visualizer_tabs.py "4+3-7*4"
 ```
-
-### Interactive Mode
-
-```bash
-python main.py
-# Enter expression when prompted
-```
-
-### More Examples
-
-```bash
-# Simple expression
-python main.py "2+3*5"
-
-# With negative numbers
-python main.py "-3+4*2"
-
-# With parentheses
-python main.py "(2+3)*5"
-
-# Nested parentheses
-python main.py "(2+3)*(4+5)"
-
-# Complex expression
-python main.py "2+3*4-5"
-```
-
-## Output
-
-The program generates:
-
-1. **Console output** with statistics:
-   - Total nodes and edges
-   - All possible final results
-   - Sample evaluation paths
-
-2. **Interactive HTML file** with:
-   - Tree diagram showing all paths
-   - **Blue nodes** = intermediate expressions
-   - **Green nodes** = final results with cumulative rewards
-   - **Green edges** = correct BODMAS operation (+1)
-   - **Red edges** = incorrect operation (-1)
-
-## How BODMAS Rewards Work
-
-### Operator Priority
-| Operator | Priority |
-|----------|----------|
-| `^` | 3 (highest) |
-| `*`, `/` | 2 |
-| `+`, `-` | 1 (lowest) |
-
-### Reward Logic
-
-1. **Within same parenthesis depth**: Higher priority operators must be done first
-2. **Deeper parentheses first**: Operations inside `()` have higher effective priority
-3. **Left-to-right for chains**: Adjacent operators with same priority → leftmost first
-4. **Independent operations**: Non-adjacent same-priority ops can be done in any order
-
-### Example: `2+3*4-5`
-
-```
-Available: ['+' at 1, '*' at 3, '-' at 5]
-
-Correct choice: '*' at 3 (highest priority) → +1 reward
-Wrong choices: '+' or '-' (lower priority) → -1 reward
-```
-
-## Understanding the Visualization
-
-### Nodes
-- **Blue circles**: Intermediate expression states
-- **Green circles**: Final results with cumulative reward shown
-
-### Edges
-- **Green lines**: Correct BODMAS operations `[+1]`
-- **Red lines**: Incorrect operations `[-1]`
-- **Labels**: Show `'operator',position` and reward
-
-### Interpreting Cumulative Rewards
-- **Maximum possible reward**: Always following BODMAS = best path
-- **Negative total reward**: Made more wrong choices than right
-- **Zero reward**: Equal right and wrong choices
-
-## Algorithm Details
-
-### Graph Building
-- Uses **Breadth-First Search (BFS)** to explore all paths
-- At each state, finds all available operations
-- Creates branches for each possible operation
-- Assigns rewards based on BODMAS correctness
-
-### Complexity
-- **Time**: O(n!) where n = number of operations
-- **Space**: O(n!) for storing all paths
-
-### Why So Many Paths?
-
-| Operations | Possible Paths |
-|------------|---------------|
-| 2 | 2 |
-| 3 | 6 |
-| 4 | 24 |
-| 5 | 120 |
-
-## Example Console Output
-
-```
-======================================================================
-EXPRESSION EVALUATION TREE GENERATOR
-======================================================================
-
-Building evaluation tree for: 3+2*4
-----------------------------------------------------------------------
-[OK] Expression parsed successfully
-[OK] Total nodes: 5
-[OK] Total edges: 4
-[OK] Possible final results: [11.0, 20.0]
-[OK] Number of different evaluation paths: 2
-
-----------------------------------------------------------------------
-SAMPLE EVALUATION PATHS
-======================================================================
-
-Path 1: Result = 11.0
-  Step 1: 3+2*4 -> Start
-  Step 2: 3+8.0 -> Performed '*' at position 3
-  Step 3: 11.0 -> Performed '+' at position 1
-
-Path 2: Result = 20.0
-  Step 1: 3+2*4 -> Start
-  Step 2: 5.0*4 -> Performed '+' at position 1
-  Step 3: 20.0 -> Performed '*' at position 1
-```
-
-## Use Cases
-
-- **Education**: Teaching BODMAS/PEMDAS rules by showing consequences of wrong order
-- **Reinforcement Learning**: Training agents to learn operator precedence
-- **Algorithm Visualization**: Understanding expression parsing and evaluation
-- **Research**: Studying how humans evaluate expressions
-
-## Contributing
-
-Contributions are welcome! Feel free to:
-- Report bugs
-- Suggest features
-- Submit pull requests
-
-## License
-
-MIT License - Free to use for educational and research purposes.
-
-## Author
-
-Created for exploring algorithmic trust and expression evaluation at NYU.

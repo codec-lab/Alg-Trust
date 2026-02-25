@@ -570,21 +570,57 @@ class BracketsOptional(Policy):
 
 class BracketsIgnored(Policy):
     """
-    Completely ignores brackets - may even drop them incorrectly.
+    Completely ignores brackets - must drop them before evaluating inside.
     This models a student who doesn't understand brackets at all.
+    
+    Behavior:
+    - Does NOT allow distribute (requires understanding brackets)
+    - Does NOT allow evaluate inside brackets (must drop brackets first)
+    - DOES allow drop_brackets (the mistake this learner makes)
+    - DOES allow evaluate outside brackets
     """
     category = "bracket"
 
     def __init__(self):
         super().__init__(
             name="brackets_ignored",
-            description="Ignores brackets completely (may drop them incorrectly)"
+            description="Must drop brackets first, cannot evaluate inside them"
         )
+
+    def _is_inside_brackets(self, state: Tuple[str, ...], operator_index: int) -> bool:
+        """Check if an operator at given index is inside brackets."""
+        depth = 0
+        for i in range(operator_index):
+            if state[i] in OPEN_BRACKETS:
+                depth += 1
+            elif state[i] in CLOSE_BRACKETS:
+                depth -= 1
+        return depth > 0
+
+    def _has_brackets(self, state: Tuple[str, ...]) -> bool:
+        """Check if there are any brackets in the state."""
+        return any(tok in OPEN_BRACKETS or tok in CLOSE_BRACKETS for tok in state)
 
     def evaluate(self, state: Tuple[str, ...], action: Action,
                  available_actions: List[Action],
                  precedence_map: Dict[str, int] = None) -> bool:
-        # Allow everything including drop_brackets
+        # Never allow distribute - requires understanding brackets
+        if action.action_type == 'distribute':
+            return False
+        
+        # Always allow drop_brackets - this is what a bracket ignorer does
+        if action.action_type == 'drop_brackets':
+            return True
+        
+        # For evaluate actions: don't allow if inside brackets
+        if action.action_type == 'evaluate':
+            if action.operator_index is None:
+                return True
+            # Block evaluate actions inside brackets - must drop brackets first
+            if self._is_inside_brackets(state, action.operator_index):
+                return False
+            return True
+        
         return True
 
 

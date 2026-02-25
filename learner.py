@@ -158,6 +158,7 @@ LEARNER_PROFILES = {
             "highest_precedence_first",
             "leftmost_first",
             "brackets_optional",
+            "prefer_evaluate",
         ],
         "description": "Knows multiplication is special, but incomplete knowledge"
     },
