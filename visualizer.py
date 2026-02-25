@@ -47,7 +47,6 @@ class TreeVisualizer:
             "id": node.id,
             "is_final": node.is_final,
             "result": node.result if node.is_final else None,
-            "cumulative_reward": node.cumulative_reward,
             "children": []
         }
 
@@ -56,9 +55,8 @@ class TreeVisualizer:
             child_node = self.graph.nodes[edge.to_node_id]
             child_tree = self._node_to_tree(child_node)
 
-            # Add edge information with reward (operator, position)
+            # Add edge information (operator, position)
             child_tree["edge_label"] = f"'{edge.operator}',{edge.operation_index}"
-            child_tree["edge_reward"] = edge.reward
 
             node_data["children"].append(child_tree)
 
@@ -109,8 +107,7 @@ class TreeVisualizer:
             edges.append({
                 "from": node_id,
                 "to": child["id"],
-                "label": child.get("edge_label", ""),
-                "reward": child.get("edge_reward", 0)
+                "label": child.get("edge_label", "")
             })
 
         return pos, edges
@@ -139,41 +136,30 @@ class TreeVisualizer:
             from_pos = positions[edge["from"]]
             to_pos = positions[edge["to"]]
 
-            # Color edge based on reward
-            reward = edge.get("reward", 0)
-            if reward > 0:
-                edge_color = '#52c41a'  # Green for correct action
-            else:
-                edge_color = '#ff4d4f'  # Red for wrong action
-
             # Add edge line
             fig.add_trace(go.Scatter(
                 x=[from_pos[0], to_pos[0]],
                 y=[from_pos[1], to_pos[1]],
                 mode='lines',
-                line=dict(color=edge_color, width=3),
+                line=dict(color='#666', width=2),
                 hoverinfo='skip',
                 showlegend=False
             ))
 
-            # Add edge label with reward
+            # Add edge label
             mid_x = (from_pos[0] + to_pos[0]) / 2
             mid_y = (from_pos[1] + to_pos[1]) / 2
-
-            # Format reward with sign
-            reward_str = f"+{reward}" if reward > 0 else str(reward)
-            reward_color = '#52c41a' if reward > 0 else '#ff4d4f'
 
             if edge["label"]:
                 fig.add_annotation(
                     x=mid_x,
                     y=mid_y,
-                    text=f"{edge['label']}<br><b style='color:{reward_color}'>[{reward_str}]</b>",
+                    text=edge['label'],
                     showarrow=False,
                     font=dict(size=11, color='#333'),
-                    bgcolor='#fffbe6' if reward > 0 else '#fff1f0',
-                    bordercolor=reward_color,
-                    borderwidth=2,
+                    bgcolor='#fff',
+                    bordercolor='#ccc',
+                    borderwidth=1,
                     borderpad=4
                 )
 
@@ -203,17 +189,6 @@ class TreeVisualizer:
 
         # Add final nodes (green)
         if final_nodes:
-            # Create labels with cumulative reward
-            def format_final_label(n):
-                reward = n.get('cumulative_reward', 0)
-                reward_str = f"+{reward}" if reward > 0 else str(reward)
-                return f"{n['name']}<br><b>Result: {n['result']}</b><br><b>Σ Reward: {reward_str}</b>"
-
-            def format_hover(n):
-                reward = n.get('cumulative_reward', 0)
-                reward_str = f"+{reward}" if reward > 0 else str(reward)
-                return f"Expression: {n['name']}\nResult: {n['result']}\nTotal Reward: {reward_str}"
-
             fig.add_trace(go.Scatter(
                 x=[positions[n["id"]][0] for n in final_nodes],
                 y=[positions[n["id"]][1] for n in final_nodes],
@@ -223,11 +198,11 @@ class TreeVisualizer:
                     color='#52c41a',
                     line=dict(color='#389e0d', width=2)
                 ),
-                text=[format_final_label(n) for n in final_nodes],
+                text=[f"{n['name']}<br><b>Result: {n['result']}</b>" for n in final_nodes],
                 textposition='top center',
                 textfont=dict(size=12),
                 hoverinfo='text',
-                hovertext=[format_hover(n) for n in final_nodes],
+                hovertext=[f"Expression: {n['name']}\nResult: {n['result']}" for n in final_nodes],
                 name='Final Result',
                 showlegend=True
             ))

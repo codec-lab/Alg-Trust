@@ -11,143 +11,31 @@ import uuid
 class Node:
     """Represents a state in the expression evaluation"""
 
-    def __init__(self, tokens: List[str], parent_id: str = None, cumulative_reward: int = 0):
+    def __init__(self, tokens: List[str], parent_id: str = None):
         self.id = str(uuid.uuid4())[:8]  # Short unique ID
         self.tokens = tokens
         self.expression = ''.join(tokens)
         self.is_final = len(tokens) == 1
         self.result = float(tokens[0]) if self.is_final else None
         self.parent_id = parent_id
-        self.cumulative_reward = cumulative_reward  # Sum of rewards from root to this node
 
     def __repr__(self):
-        return f"Node({self.expression}, final={self.is_final}, reward={self.cumulative_reward})"
+        return f"Node({self.expression}, final={self.is_final})"
 
 
 class Edge:
     """Represents an operation performed between two nodes"""
 
     def __init__(self, from_node_id: str, to_node_id: str,
-                 operation_index: int, operator: str, reward: int = 0):
+                 operation_index: int, operator: str):
         self.from_node_id = from_node_id
         self.to_node_id = to_node_id
         self.operation_index = operation_index
         self.operator = operator
-        self.reward = reward  # +1 for correct action, -1 for wrong action
         self.description = f"Performed '{operator}' at position {operation_index}"
 
     def __repr__(self):
-        return f"Edge({self.operation_index}, '{self.operator}', reward={self.reward})"
-
-
-# BODMAS operator priorities (higher number = higher priority)
-OPERATOR_PRIORITY = {
-    '+': 1,
-    '-': 1,
-    '*': 2,
-    '/': 2,
-    '^': 3
-}
-
-
-def get_bracket_depth(tokens: List[str], op_index: int) -> int:
-    """
-    Calculate the bracket depth at a given operator position.
-    All bracket types (, {, [ are treated equivalently for depth.
-
-    Args:
-        tokens: List of tokens
-        op_index: Index of the operator
-
-    Returns:
-        Depth (number of unclosed open brackets before this position)
-    """
-    depth = 0
-    for i in range(op_index):
-        if tokens[i] in OPEN_BRACKETS:
-            depth += 1
-        elif tokens[i] in CLOSE_BRACKETS:
-            depth -= 1
-    return depth
-
-
-def get_operation_priority(op: Tuple[int, str], tokens: List[str] = None) -> Tuple[int, int]:
-    """
-    Get the effective priority of an operation as (depth, operator_priority).
-
-    Args:
-        op: (index, operator) tuple
-        tokens: List of tokens
-
-    Returns:
-        Tuple of (bracket_depth, operator_priority)
-    """
-    op_index, operator = op
-    depth = get_bracket_depth(tokens, op_index) if tokens else 0
-    priority = OPERATOR_PRIORITY.get(operator, 0)
-    return (depth, priority)
-
-
-def get_correct_operations(available_ops: List[Tuple[int, str]], tokens: List[str] = None) -> List[Tuple[int, str]]:
-    """
-    Determine ALL correct operations based on dependency-aware BODMAS rules.
-
-    Operations at different parenthesis depths are considered independent scopes.
-    Within each depth level, operations with the highest operator priority are correct.
-    Adjacent operations (sharing operands) form chains - only leftmost in chain is correct.
-
-    Rules:
-    1. Group operations by parenthesis depth
-    2. Within each depth, find the highest operator priority
-    3. Among highest priority ops, check for adjacency (indices differ by 2)
-    4. Adjacent ops form chains - only leftmost in each chain is correct
-    5. Non-adjacent ops are independent - all are correct
-
-    Args:
-        available_ops: List of (index, operator) tuples
-        tokens: List of tokens (needed to calculate parenthesis depth)
-
-    Returns:
-        List of all correct (index, operator) tuples
-    """
-    if not available_ops:
-        return []
-
-    # Calculate priority for each operation: (depth, operator_priority)
-    op_priorities = [(op, get_operation_priority(op, tokens)) for op in available_ops]
-
-    # Group operations by depth
-    depth_groups = {}
-    for op, (depth, op_priority) in op_priorities:
-        if depth not in depth_groups:
-            depth_groups[depth] = []
-        depth_groups[depth].append((op, op_priority))
-
-    # For each depth, find operations with the highest operator priority
-    # Then apply left-to-right rule for adjacent (chained) operations
-    correct_ops = []
-    for depth, ops_at_depth in depth_groups.items():
-        max_priority_at_depth = max(priority for _, priority in ops_at_depth)
-
-        # Get all ops with max priority at this depth
-        max_priority_ops = [(op, priority) for op, priority in ops_at_depth
-                           if priority == max_priority_at_depth]
-
-        # Sort by index (left to right)
-        max_priority_ops.sort(key=lambda x: x[0][0])
-
-        # Find chains of adjacent operations (indices differ by 2 = share operand)
-        # For each chain, only the leftmost is correct
-        prev_index = None
-        for op, priority in max_priority_ops:
-            op_index = op[0]
-            if prev_index is None or op_index != prev_index + 2:
-                # Start of new chain or isolated operation - include it
-                correct_ops.append(op)
-            # else: part of existing chain, skip (only leftmost is correct)
-            prev_index = op_index
-
-    return correct_ops
+        return f"Edge({self.operation_index}, '{self.operator}')"
 
 
 class ExpressionGraph:
@@ -167,8 +55,8 @@ class ExpressionGraph:
         tokens = tokenize(self.expression)
         validate_tokens(tokens)
 
-        # Create root node (starts with 0 cumulative reward)
-        root = Node(tokens, cumulative_reward=0)
+        # Create root node
+        root = Node(tokens)
         self.root_id = root.id
         self.nodes[root.id] = root
 
@@ -185,30 +73,19 @@ class ExpressionGraph:
             # Find all available operations
             available_ops = self._find_available_operations(current_node.tokens)
 
-            # Determine ALL correct operations (BODMAS + parentheses)
-            correct_ops = get_correct_operations(available_ops, current_node.tokens)
-
             # For each available operation, create a new branch
             for op_index, operator in available_ops:
-                # Calculate reward: +1 if this is a correct operation, -1 otherwise
-                if (op_index, operator) in correct_ops:
-                    reward = 1
-                else:
-                    reward = -1
-
                 # Perform the operation
                 new_tokens = self._perform_operation(
                     current_node.tokens, op_index, operator
                 )
 
-                # Create new node with cumulative reward
-                new_cumulative = current_node.cumulative_reward + reward
-                new_node = Node(new_tokens, parent_id=current_node.id,
-                               cumulative_reward=new_cumulative)
+                # Create new node
+                new_node = Node(new_tokens, parent_id=current_node.id)
                 self.nodes[new_node.id] = new_node
 
-                # Create edge with reward
-                edge = Edge(current_node.id, new_node.id, op_index, operator, reward)
+                # Create edge
+                edge = Edge(current_node.id, new_node.id, op_index, operator)
                 self.edges.append(edge)
 
                 # Add to queue for further exploration
