@@ -17,15 +17,6 @@ This tool generates **all possible evaluation paths** for arithmetic expressions
 - **Bracket Handling**: Support for distribution, evaluation inside brackets, and common mistakes (bracket dropping)
 - **BODMAS Rewards**: Track correct (+1) vs incorrect (-1) operations for RL training
 
-### Example
-
-For the expression `3+2*4`:
-
-| Learner Profile | Behavior | Result | Reasoning |
-|----------------|----------|--------|-----------|
-| **expert** | `*` first → `+` | **11** | Follows BODMAS correctly |
-| **addition_first** | `+` first → `*` | **20** | Believes addition has higher precedence |
-| **left_to_right_only** | `+` first → `*` | **20** | Ignores precedence, goes left-to-right |
 
 ## Core Components
 
@@ -38,43 +29,13 @@ A **Learner** is defined by:
 
 ### 2. Policy System (`policies.py`)
 
-Policies are organized into **categories**:
-
-| Category | Description | Policies |
-|----------|-------------|----------|
-| **Precedence** | Operator ordering | `highest_precedence_first`, `no_higher_prec_left`, `no_higher_prec_right` |
-| **Direction** | Tie-breaking for same precedence | `leftmost_first`, `rightmost_first`, `left_to_right_strict`, `right_to_left_strict` |
-| **Bracket Handling** | How to handle brackets | `brackets_first`, `brackets_optional`, `brackets_ignored` |
-| **Action Preference** | Evaluate vs distribute | `prefer_evaluate`, `prefer_distribute` |
+Policies are organized into **categories**
 
 The conjunction of policies determines valid actions:
 ```
 valid_action = φ₁(s,a,A,P) ∧ φ₂(s,a,A,P) ∧ ... ∧ φₙ(s,a,A,P)
 ```
 
-### 3. Preset Learner Profiles
-
-| Profile | Precedence | Description |
-|---------|------------|-------------|
-| `expert` | BODMAS | Follows BODMAS correctly with brackets |
-| `bodmas_correct` | BODMAS | Knows BODMAS precedence and left-to-right rule |
-| `addition_first` | Addition > Mult | Believes addition comes before multiplication (wrong!) |
-| `multiplication_first` | Only * special | Knows multiplication is special, incomplete knowledge |
-| `left_to_right_only` | Flat | Strictly left-to-right, ignores precedence |
-| `right_to_left` | Flat | Right-to-left, ignores precedence (wrong!) |
-| `novice` | Flat | No knowledge - any action is valid |
-| `bracket_ignorer` | Flat | Ignores brackets completely, may drop them |
-| `distributor` | BODMAS | Knows BODMAS but prefers to distribute |
-| `bodmas_wrong_direction` | BODMAS | Knows precedence but goes right-to-left |
-
-### 4. Precedence Maps
-
-| Map | Ordering | Description |
-|-----|----------|-------------|
-| `bodmas` | `^` > `*/` > `+-` | Standard BODMAS/PEMDAS |
-| `addition_first` | `+-` > `^` > `*/` | Addition/subtraction highest (wrong!) |
-| `multiplication_first` | `*` > `/^` > `+-` | Only multiplication is special |
-| `flat` | All equal | No operator precedence |
 
 ## File Structure
 
