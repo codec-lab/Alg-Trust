@@ -220,6 +220,9 @@ class TabbedVisualizer:
             border-radius: 12px;
             margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }}
 
         .header h1 {{
