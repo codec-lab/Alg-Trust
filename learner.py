@@ -152,15 +152,16 @@ LEARNER_PROFILES = {
     },
 
     # Multiplication only (partial knowledge)
+    # When seeing (a+b)*c, they want to "do the multiplication" by distributing
     "multiplication_first": {
         "precedence": "multiplication_first",
         "policies": [
             "highest_precedence_first",
             "leftmost_first",
             "brackets_optional",
-            "prefer_evaluate",
+            "prefer_distribute_mult",  # Only distribute when * or / is next to brackets
         ],
-        "description": "Knows multiplication is special, but incomplete knowledge"
+        "description": "Believes multiplication is most important - distributes brackets with *"
     },
 
     # Left-to-right only (ignores all precedence)

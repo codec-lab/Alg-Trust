@@ -675,6 +675,48 @@ class PreferDistribute(Policy):
         return True
 
 
+class PreferDistributeMult(Policy):
+    """
+    Only prefer distribution when the operator next to brackets is * or /.
+    For + or - next to brackets, prefer evaluate inside instead.
+
+    This models a learner who thinks "multiplication first" means
+    distributing when they see (a+b)*c, but not when they see (a*b)+c.
+    """
+    category = "action_preference"
+
+    def __init__(self):
+        super().__init__(
+            name="prefer_distribute_mult",
+            description="Distribute only when * or / is next to brackets"
+        )
+
+    def evaluate(self, state: Tuple[str, ...], action: Action,
+                 available_actions: List[Action],
+                 precedence_map: Dict[str, int] = None) -> bool:
+        # Get distribute actions with * or /
+        mult_div_distributes = [
+            a for a in available_actions
+            if a.action_type == 'distribute' and a.operator in ['*', '/']
+        ]
+
+        # Get distribute actions with + or -
+        add_sub_distributes = [
+            a for a in available_actions
+            if a.action_type == 'distribute' and a.operator in ['+', '-']
+        ]
+
+        # If this is a distribute action with + or -, block it (prefer evaluate)
+        if action.action_type == 'distribute' and action.operator in ['+', '-']:
+            return False
+
+        # If there are * or / distributes available, block evaluate actions
+        if mult_div_distributes and action.action_type == 'evaluate':
+            return False
+
+        return True
+
+
 # =============================================================================
 # UTILITY POLICIES
 # =============================================================================
@@ -721,6 +763,7 @@ POLICY_REGISTRY = {
     # Category 4: Action preference
     'prefer_evaluate': PreferEvaluate,
     'prefer_distribute': PreferDistribute,
+    'prefer_distribute_mult': PreferDistributeMult,
 
     # Utility
     'allow_all': AllowAll,
@@ -749,7 +792,7 @@ POLICY_CATEGORIES = {
     'action_preference': {
         'name': 'Action Preference',
         'description': 'Preference between evaluate and distribute',
-        'policies': ['prefer_evaluate', 'prefer_distribute'],
+        'policies': ['prefer_evaluate', 'prefer_distribute', 'prefer_distribute_mult'],
         'exclusive': True,
     },
 }
