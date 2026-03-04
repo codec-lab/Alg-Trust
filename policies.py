@@ -227,7 +227,11 @@ class Policy(ABC):
 
 class HighestPrecedenceFirst(Policy):
     """
-    Only allow evaluation of highest-precedence operators among available evaluate actions.
+    Only allow evaluation of highest-precedence operators among available evaluate actions
+    AT THE SAME BRACKET DEPTH.
+
+    This ensures that precedence comparisons happen within the same scope - an operator
+    inside brackets is not compared with operators outside brackets.
     Uses the learner's precedence_map to determine precedence.
     """
     category = "precedence"
@@ -235,8 +239,18 @@ class HighestPrecedenceFirst(Policy):
     def __init__(self):
         super().__init__(
             name="highest_precedence_first",
-            description="Only evaluate operators with highest precedence among available"
+            description="Only evaluate operators with highest precedence among available (same bracket depth)"
         )
+
+    def _get_bracket_depth(self, state: Tuple[str, ...], index: int) -> int:
+        """Get the bracket nesting depth at a given index."""
+        depth = 0
+        for i in range(index):
+            if state[i] in OPEN_BRACKETS:
+                depth += 1
+            elif state[i] in CLOSE_BRACKETS:
+                depth -= 1
+        return depth
 
     def evaluate(self, state: Tuple[str, ...], action: Action,
                  available_actions: List[Action],
@@ -244,16 +258,29 @@ class HighestPrecedenceFirst(Policy):
         if action.action_type != 'evaluate':
             return True
 
-        prec_map = precedence_map or PRECEDENCE_BODMAS
-
-        eval_actions = get_evaluate_actions(available_actions)
-        if not eval_actions:
+        if action.operator_index is None:
             return True
 
-        # Find highest precedence among available evaluate actions
-        max_prec = max(prec_map.get(a.operator, 0) for a in eval_actions)
+        prec_map = precedence_map or PRECEDENCE_BODMAS
 
-        # This action is valid if it has the highest precedence
+        # Get the bracket depth of this action
+        my_depth = self._get_bracket_depth(state, action.operator_index)
+
+        # Only compare with evaluate actions at the same bracket depth
+        eval_actions = get_evaluate_actions(available_actions)
+        same_depth_actions = [
+            a for a in eval_actions
+            if a.operator_index is not None and
+               self._get_bracket_depth(state, a.operator_index) == my_depth
+        ]
+
+        if not same_depth_actions:
+            return True
+
+        # Find highest precedence among actions at same depth
+        max_prec = max(prec_map.get(a.operator, 0) for a in same_depth_actions)
+
+        # This action is valid if it has the highest precedence at this depth
         return prec_map.get(action.operator, 0) == max_prec
 
 

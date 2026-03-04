@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expression: 4+3-7*4</title>
+    <title>Expression: 48/2*(9+3)</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
         * {
@@ -637,14 +637,14 @@
     <div id="app">
         <div class="header">
             <h1>Expression Evaluation Explorer </h1>
-            <div class="expression">4+3-7*4</div>
+            <div class="expression">48/2*(9+3)</div>
             <div class="stats">
-                <div class="stat">Nodes: <strong>11</strong></div>
-                <div class="stat">Edges: <strong>13</strong></div>
-                <div class="stat">Distribute: <strong>0</strong></div>
-                <div class="stat">Drop: <strong>0</strong></div>
-                <div class="stat">Evaluate: <strong>13</strong></div>
-                <div class="stat">Results: <strong>-21.0, -12.0, 0.0</strong></div>
+                <div class="stat">Nodes: <strong>82</strong></div>
+                <div class="stat">Edges: <strong>124</strong></div>
+                <div class="stat">Distribute: <strong>2</strong></div>
+                <div class="stat">Drop: <strong>20</strong></div>
+                <div class="stat">Evaluate: <strong>102</strong></div>
+                <div class="stat">Results: <strong>0.7272727272727273, 0.8, 1.6, 2.0, 2.2857142857142856, 5.666666666666666, 6.545454545454545, 7.199999999999999, 8.666666666666666, 13.999999999999998, 219.0, 222.0, 288.0, 360.0, 654.0, 720.0, 792.0, 1944.0, 2376.0</strong></div>
             </div>
         </div>
 
@@ -842,186 +842,2340 @@
         const { createApp } = Vue;
 
         const treeData = {
-  "id": "8fb52232",
-  "expression": "4+3-7*4",
+  "id": "b1880eb7",
+  "expression": "48/2*(9+3)",
   "isFinal": false,
   "result": null,
   "children": [
     {
-      "id": "b76b4b23",
-      "expression": "7-7*4",
+      "id": "8089e8a8",
+      "expression": "48/(2*9+2*3)",
       "isFinal": false,
       "result": null,
       "children": [
         {
-          "id": "5ef74d23",
-          "expression": "0*4",
+          "id": "4e4120ef",
+          "expression": "48/2*9+2*3",
           "isFinal": false,
           "result": null,
           "children": [
             {
-              "id": "8c162df8",
-              "expression": "0",
+              "id": "e9d52770",
+              "expression": "24*9+2*3",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "8951d835",
+                  "expression": "216+2*3",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "9ec819d0",
+                      "expression": "218*3",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "d6ed8d41",
+                          "expression": "654",
+                          "isFinal": true,
+                          "result": 654.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 216 + 2",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "3a4780e7",
+                      "expression": "216+6",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "590de1f5",
+                          "expression": "222",
+                          "isFinal": true,
+                          "result": 222.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '+' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 2 * 3",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 24 * 9",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "d92abc90",
+                  "expression": "24*11*3",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "09033e77",
+                      "expression": "792",
+                      "isFinal": true,
+                      "result": 792.0,
+                      "children": [],
+                      "edgeLabel": "Compute all '*' operations",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 9 + 2",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "ec020a29",
+                  "expression": "24*9+6",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "3a4780e7",
+                      "expression": "216+6",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "590de1f5",
+                          "expression": "222",
+                          "isFinal": true,
+                          "result": 222.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '+' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 24 * 9",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "dde6ec6d",
+                      "expression": "24*15",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "55697499",
+                          "expression": "360",
+                          "isFinal": true,
+                          "result": 360.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 9 + 6",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 2 * 3",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 48 / 2",
+              "edgeType": "evaluate"
+            },
+            {
+              "id": "794b94f1",
+              "expression": "48/18+2*3",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "822ef390",
+                  "expression": "2.6666666666666665+2*3",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "cc09a2e4",
+                      "expression": "4.666666666666666*3",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "b2c88fcb",
+                          "expression": "13.999999999999998",
+                          "isFinal": true,
+                          "result": 13.999999999999998,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 2.6666666666666665 + 2",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "623f6405",
+                      "expression": "2.6666666666666665+6",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "3411afbd",
+                          "expression": "8.666666666666666",
+                          "isFinal": true,
+                          "result": 8.666666666666666,
+                          "children": [],
+                          "edgeLabel": "Compute all '+' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 2 * 3",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 48 / 18",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "201d440f",
+                  "expression": "48/20*3",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "434690a3",
+                      "expression": "2.4*3",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "54c05a10",
+                          "expression": "7.199999999999999",
+                          "isFinal": true,
+                          "result": 7.199999999999999,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 48 / 20",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "4b4e7b82",
+                      "expression": "48/60",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "0d88d79d",
+                          "expression": "0.8",
+                          "isFinal": true,
+                          "result": 0.8,
+                          "children": [],
+                          "edgeLabel": "Compute all '/' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 20 * 3",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 18 + 2",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "7747febc",
+                  "expression": "48/18+6",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "623f6405",
+                      "expression": "2.6666666666666665+6",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "3411afbd",
+                          "expression": "8.666666666666666",
+                          "isFinal": true,
+                          "result": 8.666666666666666,
+                          "children": [],
+                          "edgeLabel": "Compute all '+' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 48 / 18",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "46c42a19",
+                      "expression": "48/24",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "8658fff9",
+                          "expression": "2",
+                          "isFinal": true,
+                          "result": 2.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '/' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 18 + 6",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 2 * 3",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 2 * 9",
+              "edgeType": "evaluate"
+            },
+            {
+              "id": "d3b59fe1",
+              "expression": "48/2*11*3",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "d92abc90",
+                  "expression": "24*11*3",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "09033e77",
+                      "expression": "792",
+                      "isFinal": true,
+                      "result": 792.0,
+                      "children": [],
+                      "edgeLabel": "Compute all '*' operations",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 48 / 2",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "de841953",
+                  "expression": "48/22*3",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "86bd7f85",
+                      "expression": "2.1818181818181817*3",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "3fcc5ad0",
+                          "expression": "6.545454545454545",
+                          "isFinal": true,
+                          "result": 6.545454545454545,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 48 / 22",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "f23aa0ec",
+                      "expression": "48/66",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "f6c4c272",
+                          "expression": "0.7272727272727273",
+                          "isFinal": true,
+                          "result": 0.7272727272727273,
+                          "children": [],
+                          "edgeLabel": "Compute all '/' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 22 * 3",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 2 * 11",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "2eb4a44d",
+                  "expression": "48/2*33",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "463b998c",
+                      "expression": "24*33",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "09033e77",
+                          "expression": "792",
+                          "isFinal": true,
+                          "result": 792.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 48 / 2",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "f23aa0ec",
+                      "expression": "48/66",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "f6c4c272",
+                          "expression": "0.7272727272727273",
+                          "isFinal": true,
+                          "result": 0.7272727272727273,
+                          "children": [],
+                          "edgeLabel": "Compute all '/' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 2 * 33",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 11 * 3",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 9 + 2",
+              "edgeType": "evaluate"
+            },
+            {
+              "id": "24d3dda4",
+              "expression": "48/2*9+6",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "ec020a29",
+                  "expression": "24*9+6",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "3a4780e7",
+                      "expression": "216+6",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "590de1f5",
+                          "expression": "222",
+                          "isFinal": true,
+                          "result": 222.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '+' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 24 * 9",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "dde6ec6d",
+                      "expression": "24*15",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "55697499",
+                          "expression": "360",
+                          "isFinal": true,
+                          "result": 360.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 9 + 6",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 48 / 2",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "7747febc",
+                  "expression": "48/18+6",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "623f6405",
+                      "expression": "2.6666666666666665+6",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "3411afbd",
+                          "expression": "8.666666666666666",
+                          "isFinal": true,
+                          "result": 8.666666666666666,
+                          "children": [],
+                          "edgeLabel": "Compute all '+' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 48 / 18",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "46c42a19",
+                      "expression": "48/24",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "8658fff9",
+                          "expression": "2",
+                          "isFinal": true,
+                          "result": 2.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '/' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 18 + 6",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 2 * 9",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "e0f3d2b7",
+                  "expression": "48/2*15",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "dde6ec6d",
+                      "expression": "24*15",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "55697499",
+                          "expression": "360",
+                          "isFinal": true,
+                          "result": 360.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 48 / 2",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "7c8aa2c7",
+                      "expression": "48/30",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "58ff5550",
+                          "expression": "1.6",
+                          "isFinal": true,
+                          "result": 1.6,
+                          "children": [],
+                          "edgeLabel": "Compute all '/' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 2 * 15",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 9 + 6",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 2 * 3",
+              "edgeType": "evaluate"
+            }
+          ],
+          "edgeLabel": "Drop brackets: (2*9+2*3)",
+          "edgeType": "drop_brackets"
+        },
+        {
+          "id": "2e1fa3fd",
+          "expression": "48/(18+2*3)",
+          "isFinal": false,
+          "result": null,
+          "children": [
+            {
+              "id": "794b94f1",
+              "expression": "48/18+2*3",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "822ef390",
+                  "expression": "2.6666666666666665+2*3",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "cc09a2e4",
+                      "expression": "4.666666666666666*3",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "b2c88fcb",
+                          "expression": "13.999999999999998",
+                          "isFinal": true,
+                          "result": 13.999999999999998,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 2.6666666666666665 + 2",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "623f6405",
+                      "expression": "2.6666666666666665+6",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "3411afbd",
+                          "expression": "8.666666666666666",
+                          "isFinal": true,
+                          "result": 8.666666666666666,
+                          "children": [],
+                          "edgeLabel": "Compute all '+' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 2 * 3",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 48 / 18",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "201d440f",
+                  "expression": "48/20*3",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "434690a3",
+                      "expression": "2.4*3",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "54c05a10",
+                          "expression": "7.199999999999999",
+                          "isFinal": true,
+                          "result": 7.199999999999999,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 48 / 20",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "4b4e7b82",
+                      "expression": "48/60",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "0d88d79d",
+                          "expression": "0.8",
+                          "isFinal": true,
+                          "result": 0.8,
+                          "children": [],
+                          "edgeLabel": "Compute all '/' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 20 * 3",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 18 + 2",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "7747febc",
+                  "expression": "48/18+6",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "623f6405",
+                      "expression": "2.6666666666666665+6",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "3411afbd",
+                          "expression": "8.666666666666666",
+                          "isFinal": true,
+                          "result": 8.666666666666666,
+                          "children": [],
+                          "edgeLabel": "Compute all '+' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 48 / 18",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "46c42a19",
+                      "expression": "48/24",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "8658fff9",
+                          "expression": "2",
+                          "isFinal": true,
+                          "result": 2.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '/' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 18 + 6",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 2 * 3",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Drop brackets: (18+2*3)",
+              "edgeType": "drop_brackets"
+            },
+            {
+              "id": "b9864737",
+              "expression": "48/(20*3)",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "201d440f",
+                  "expression": "48/20*3",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "434690a3",
+                      "expression": "2.4*3",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "54c05a10",
+                          "expression": "7.199999999999999",
+                          "isFinal": true,
+                          "result": 7.199999999999999,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 48 / 20",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "4b4e7b82",
+                      "expression": "48/60",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "0d88d79d",
+                          "expression": "0.8",
+                          "isFinal": true,
+                          "result": 0.8,
+                          "children": [],
+                          "edgeLabel": "Compute all '/' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 20 * 3",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Drop brackets: (20*3)",
+                  "edgeType": "drop_brackets"
+                },
+                {
+                  "id": "4b4e7b82",
+                  "expression": "48/60",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "0d88d79d",
+                      "expression": "0.8",
+                      "isFinal": true,
+                      "result": 0.8,
+                      "children": [],
+                      "edgeLabel": "Compute all '/' operations",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 20 * 3",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 18 + 2",
+              "edgeType": "evaluate"
+            },
+            {
+              "id": "65a2b59b",
+              "expression": "48/(18+6)",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "7747febc",
+                  "expression": "48/18+6",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "623f6405",
+                      "expression": "2.6666666666666665+6",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "3411afbd",
+                          "expression": "8.666666666666666",
+                          "isFinal": true,
+                          "result": 8.666666666666666,
+                          "children": [],
+                          "edgeLabel": "Compute all '+' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 48 / 18",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "46c42a19",
+                      "expression": "48/24",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "8658fff9",
+                          "expression": "2",
+                          "isFinal": true,
+                          "result": 2.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '/' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 18 + 6",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Drop brackets: (18+6)",
+                  "edgeType": "drop_brackets"
+                },
+                {
+                  "id": "46c42a19",
+                  "expression": "48/24",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "8658fff9",
+                      "expression": "2",
+                      "isFinal": true,
+                      "result": 2.0,
+                      "children": [],
+                      "edgeLabel": "Compute all '/' operations",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 18 + 6",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 2 * 3",
+              "edgeType": "evaluate"
+            }
+          ],
+          "edgeLabel": "Compute 2 * 9",
+          "edgeType": "evaluate"
+        },
+        {
+          "id": "94d8217c",
+          "expression": "48/(2*11*3)",
+          "isFinal": false,
+          "result": null,
+          "children": [
+            {
+              "id": "d3b59fe1",
+              "expression": "48/2*11*3",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "d92abc90",
+                  "expression": "24*11*3",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "09033e77",
+                      "expression": "792",
+                      "isFinal": true,
+                      "result": 792.0,
+                      "children": [],
+                      "edgeLabel": "Compute all '*' operations",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 48 / 2",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "de841953",
+                  "expression": "48/22*3",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "86bd7f85",
+                      "expression": "2.1818181818181817*3",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "3fcc5ad0",
+                          "expression": "6.545454545454545",
+                          "isFinal": true,
+                          "result": 6.545454545454545,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 48 / 22",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "f23aa0ec",
+                      "expression": "48/66",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "f6c4c272",
+                          "expression": "0.7272727272727273",
+                          "isFinal": true,
+                          "result": 0.7272727272727273,
+                          "children": [],
+                          "edgeLabel": "Compute all '/' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 22 * 3",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 2 * 11",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "2eb4a44d",
+                  "expression": "48/2*33",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "463b998c",
+                      "expression": "24*33",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "09033e77",
+                          "expression": "792",
+                          "isFinal": true,
+                          "result": 792.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 48 / 2",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "f23aa0ec",
+                      "expression": "48/66",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "f6c4c272",
+                          "expression": "0.7272727272727273",
+                          "isFinal": true,
+                          "result": 0.7272727272727273,
+                          "children": [],
+                          "edgeLabel": "Compute all '/' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 2 * 33",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 11 * 3",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Drop brackets: (2*11*3)",
+              "edgeType": "drop_brackets"
+            },
+            {
+              "id": "c213acfd",
+              "expression": "48/(22*3)",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "de841953",
+                  "expression": "48/22*3",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "86bd7f85",
+                      "expression": "2.1818181818181817*3",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "3fcc5ad0",
+                          "expression": "6.545454545454545",
+                          "isFinal": true,
+                          "result": 6.545454545454545,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 48 / 22",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "f23aa0ec",
+                      "expression": "48/66",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "f6c4c272",
+                          "expression": "0.7272727272727273",
+                          "isFinal": true,
+                          "result": 0.7272727272727273,
+                          "children": [],
+                          "edgeLabel": "Compute all '/' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 22 * 3",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Drop brackets: (22*3)",
+                  "edgeType": "drop_brackets"
+                },
+                {
+                  "id": "f23aa0ec",
+                  "expression": "48/66",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "f6c4c272",
+                      "expression": "0.7272727272727273",
+                      "isFinal": true,
+                      "result": 0.7272727272727273,
+                      "children": [],
+                      "edgeLabel": "Compute all '/' operations",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 22 * 3",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 2 * 11",
+              "edgeType": "evaluate"
+            },
+            {
+              "id": "52b8fa15",
+              "expression": "48/(2*33)",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "2eb4a44d",
+                  "expression": "48/2*33",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "463b998c",
+                      "expression": "24*33",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "09033e77",
+                          "expression": "792",
+                          "isFinal": true,
+                          "result": 792.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 48 / 2",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "f23aa0ec",
+                      "expression": "48/66",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "f6c4c272",
+                          "expression": "0.7272727272727273",
+                          "isFinal": true,
+                          "result": 0.7272727272727273,
+                          "children": [],
+                          "edgeLabel": "Compute all '/' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 2 * 33",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Drop brackets: (2*33)",
+                  "edgeType": "drop_brackets"
+                },
+                {
+                  "id": "f23aa0ec",
+                  "expression": "48/66",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "f6c4c272",
+                      "expression": "0.7272727272727273",
+                      "isFinal": true,
+                      "result": 0.7272727272727273,
+                      "children": [],
+                      "edgeLabel": "Compute all '/' operations",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 2 * 33",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 11 * 3",
+              "edgeType": "evaluate"
+            }
+          ],
+          "edgeLabel": "Compute 9 + 2",
+          "edgeType": "evaluate"
+        },
+        {
+          "id": "eed1a9b7",
+          "expression": "48/(2*9+6)",
+          "isFinal": false,
+          "result": null,
+          "children": [
+            {
+              "id": "24d3dda4",
+              "expression": "48/2*9+6",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "ec020a29",
+                  "expression": "24*9+6",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "3a4780e7",
+                      "expression": "216+6",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "590de1f5",
+                          "expression": "222",
+                          "isFinal": true,
+                          "result": 222.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '+' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 24 * 9",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "dde6ec6d",
+                      "expression": "24*15",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "55697499",
+                          "expression": "360",
+                          "isFinal": true,
+                          "result": 360.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 9 + 6",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 48 / 2",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "7747febc",
+                  "expression": "48/18+6",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "623f6405",
+                      "expression": "2.6666666666666665+6",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "3411afbd",
+                          "expression": "8.666666666666666",
+                          "isFinal": true,
+                          "result": 8.666666666666666,
+                          "children": [],
+                          "edgeLabel": "Compute all '+' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 48 / 18",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "46c42a19",
+                      "expression": "48/24",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "8658fff9",
+                          "expression": "2",
+                          "isFinal": true,
+                          "result": 2.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '/' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 18 + 6",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 2 * 9",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "e0f3d2b7",
+                  "expression": "48/2*15",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "dde6ec6d",
+                      "expression": "24*15",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "55697499",
+                          "expression": "360",
+                          "isFinal": true,
+                          "result": 360.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 48 / 2",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "7c8aa2c7",
+                      "expression": "48/30",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "58ff5550",
+                          "expression": "1.6",
+                          "isFinal": true,
+                          "result": 1.6,
+                          "children": [],
+                          "edgeLabel": "Compute all '/' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 2 * 15",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 9 + 6",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Drop brackets: (2*9+6)",
+              "edgeType": "drop_brackets"
+            },
+            {
+              "id": "65a2b59b",
+              "expression": "48/(18+6)",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "7747febc",
+                  "expression": "48/18+6",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "623f6405",
+                      "expression": "2.6666666666666665+6",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "3411afbd",
+                          "expression": "8.666666666666666",
+                          "isFinal": true,
+                          "result": 8.666666666666666,
+                          "children": [],
+                          "edgeLabel": "Compute all '+' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 48 / 18",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "46c42a19",
+                      "expression": "48/24",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "8658fff9",
+                          "expression": "2",
+                          "isFinal": true,
+                          "result": 2.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '/' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 18 + 6",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Drop brackets: (18+6)",
+                  "edgeType": "drop_brackets"
+                },
+                {
+                  "id": "46c42a19",
+                  "expression": "48/24",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "8658fff9",
+                      "expression": "2",
+                      "isFinal": true,
+                      "result": 2.0,
+                      "children": [],
+                      "edgeLabel": "Compute all '/' operations",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 18 + 6",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 2 * 9",
+              "edgeType": "evaluate"
+            },
+            {
+              "id": "facbdffe",
+              "expression": "48/(2*15)",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "e0f3d2b7",
+                  "expression": "48/2*15",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "dde6ec6d",
+                      "expression": "24*15",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "55697499",
+                          "expression": "360",
+                          "isFinal": true,
+                          "result": 360.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 48 / 2",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "7c8aa2c7",
+                      "expression": "48/30",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "58ff5550",
+                          "expression": "1.6",
+                          "isFinal": true,
+                          "result": 1.6,
+                          "children": [],
+                          "edgeLabel": "Compute all '/' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 2 * 15",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Drop brackets: (2*15)",
+                  "edgeType": "drop_brackets"
+                },
+                {
+                  "id": "7c8aa2c7",
+                  "expression": "48/30",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "58ff5550",
+                      "expression": "1.6",
+                      "isFinal": true,
+                      "result": 1.6,
+                      "children": [],
+                      "edgeLabel": "Compute all '/' operations",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 2 * 15",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 9 + 6",
+              "edgeType": "evaluate"
+            }
+          ],
+          "edgeLabel": "Compute 2 * 3",
+          "edgeType": "evaluate"
+        }
+      ],
+      "edgeLabel": "Distribute (9+3) * 2",
+      "edgeType": "distribute"
+    },
+    {
+      "id": "2875337a",
+      "expression": "48/2*9+3",
+      "isFinal": false,
+      "result": null,
+      "children": [
+        {
+          "id": "23b96876",
+          "expression": "24*9+3",
+          "isFinal": false,
+          "result": null,
+          "children": [
+            {
+              "id": "738f2fb4",
+              "expression": "216+3",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "89723dc5",
+                  "expression": "219",
+                  "isFinal": true,
+                  "result": 219.0,
+                  "children": [],
+                  "edgeLabel": "Compute all '+' operations",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 24 * 9",
+              "edgeType": "evaluate"
+            },
+            {
+              "id": "26bc8543",
+              "expression": "24*12",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "94c755d5",
+                  "expression": "288",
+                  "isFinal": true,
+                  "result": 288.0,
+                  "children": [],
+                  "edgeLabel": "Compute all '*' operations",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 9 + 3",
+              "edgeType": "evaluate"
+            }
+          ],
+          "edgeLabel": "Compute 48 / 2",
+          "edgeType": "evaluate"
+        },
+        {
+          "id": "7c979871",
+          "expression": "48/18+3",
+          "isFinal": false,
+          "result": null,
+          "children": [
+            {
+              "id": "fb914ac2",
+              "expression": "2.6666666666666665+3",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "bb97d017",
+                  "expression": "5.666666666666666",
+                  "isFinal": true,
+                  "result": 5.666666666666666,
+                  "children": [],
+                  "edgeLabel": "Compute all '+' operations",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 48 / 18",
+              "edgeType": "evaluate"
+            },
+            {
+              "id": "e9162ac1",
+              "expression": "48/21",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "a1fcada1",
+                  "expression": "2.2857142857142856",
+                  "isFinal": true,
+                  "result": 2.2857142857142856,
+                  "children": [],
+                  "edgeLabel": "Compute all '/' operations",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 18 + 3",
+              "edgeType": "evaluate"
+            }
+          ],
+          "edgeLabel": "Compute 2 * 9",
+          "edgeType": "evaluate"
+        },
+        {
+          "id": "31727b7c",
+          "expression": "48/2*12",
+          "isFinal": false,
+          "result": null,
+          "children": [
+            {
+              "id": "26bc8543",
+              "expression": "24*12",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "94c755d5",
+                  "expression": "288",
+                  "isFinal": true,
+                  "result": 288.0,
+                  "children": [],
+                  "edgeLabel": "Compute all '*' operations",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 48 / 2",
+              "edgeType": "evaluate"
+            },
+            {
+              "id": "46c42a19",
+              "expression": "48/24",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "8658fff9",
+                  "expression": "2",
+                  "isFinal": true,
+                  "result": 2.0,
+                  "children": [],
+                  "edgeLabel": "Compute all '/' operations",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 2 * 12",
+              "edgeType": "evaluate"
+            }
+          ],
+          "edgeLabel": "Compute 9 + 3",
+          "edgeType": "evaluate"
+        }
+      ],
+      "edgeLabel": "Drop brackets: (9+3)",
+      "edgeType": "drop_brackets"
+    },
+    {
+      "id": "4ee41c0f",
+      "expression": "24*(9+3)",
+      "isFinal": false,
+      "result": null,
+      "children": [
+        {
+          "id": "63f08b45",
+          "expression": "(24*9+24*3)",
+          "isFinal": false,
+          "result": null,
+          "children": [
+            {
+              "id": "4cdcfa79",
+              "expression": "24*9+24*3",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "125dd159",
+                  "expression": "216+24*3",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "7cd66691",
+                      "expression": "240*3",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "03a550d2",
+                          "expression": "720",
+                          "isFinal": true,
+                          "result": 720.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 216 + 24",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "85398ff5",
+                      "expression": "216+72",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "94c755d5",
+                          "expression": "288",
+                          "isFinal": true,
+                          "result": 288.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '+' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 24 * 3",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 24 * 9",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "4db687e4",
+                  "expression": "24*33*3",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "2c4c3362",
+                      "expression": "2376",
+                      "isFinal": true,
+                      "result": 2376.0,
+                      "children": [],
+                      "edgeLabel": "Compute all '*' operations",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 9 + 24",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "7a08d8c5",
+                  "expression": "24*9+72",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "85398ff5",
+                      "expression": "216+72",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "94c755d5",
+                          "expression": "288",
+                          "isFinal": true,
+                          "result": 288.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '+' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 24 * 9",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "d23c894c",
+                      "expression": "24*81",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "aceea42d",
+                          "expression": "1944",
+                          "isFinal": true,
+                          "result": 1944.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 9 + 72",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 24 * 3",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Drop brackets: (24*9+24*3)",
+              "edgeType": "drop_brackets"
+            },
+            {
+              "id": "5a0df049",
+              "expression": "(216+24*3)",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "125dd159",
+                  "expression": "216+24*3",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "7cd66691",
+                      "expression": "240*3",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "03a550d2",
+                          "expression": "720",
+                          "isFinal": true,
+                          "result": 720.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 216 + 24",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "85398ff5",
+                      "expression": "216+72",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "94c755d5",
+                          "expression": "288",
+                          "isFinal": true,
+                          "result": 288.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '+' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 24 * 3",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Drop brackets: (216+24*3)",
+                  "edgeType": "drop_brackets"
+                },
+                {
+                  "id": "f9030536",
+                  "expression": "(240*3)",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "7cd66691",
+                      "expression": "240*3",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "03a550d2",
+                          "expression": "720",
+                          "isFinal": true,
+                          "result": 720.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Drop brackets: (240*3)",
+                      "edgeType": "drop_brackets"
+                    },
+                    {
+                      "id": "03a550d2",
+                      "expression": "720",
+                      "isFinal": true,
+                      "result": 720.0,
+                      "children": [],
+                      "edgeLabel": "Compute 240 * 3",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 216 + 24",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "05d5bfbe",
+                  "expression": "(216+72)",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "85398ff5",
+                      "expression": "216+72",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "94c755d5",
+                          "expression": "288",
+                          "isFinal": true,
+                          "result": 288.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '+' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Drop brackets: (216+72)",
+                      "edgeType": "drop_brackets"
+                    },
+                    {
+                      "id": "94c755d5",
+                      "expression": "288",
+                      "isFinal": true,
+                      "result": 288.0,
+                      "children": [],
+                      "edgeLabel": "Compute 216 + 72",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 24 * 3",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 24 * 9",
+              "edgeType": "evaluate"
+            },
+            {
+              "id": "ee4204c3",
+              "expression": "(24*33*3)",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "4db687e4",
+                  "expression": "24*33*3",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "2c4c3362",
+                      "expression": "2376",
+                      "isFinal": true,
+                      "result": 2376.0,
+                      "children": [],
+                      "edgeLabel": "Compute all '*' operations",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Drop brackets: (24*33*3)",
+                  "edgeType": "drop_brackets"
+                },
+                {
+                  "id": "0feb74be",
+                  "expression": "(792*3)",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "fac14f46",
+                      "expression": "792*3",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "2c4c3362",
+                          "expression": "2376",
+                          "isFinal": true,
+                          "result": 2376.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Drop brackets: (792*3)",
+                      "edgeType": "drop_brackets"
+                    },
+                    {
+                      "id": "2c4c3362",
+                      "expression": "2376",
+                      "isFinal": true,
+                      "result": 2376.0,
+                      "children": [],
+                      "edgeLabel": "Compute 792 * 3",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 24 * 33",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "e1a55d41",
+                  "expression": "(24*99)",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "62e66bf0",
+                      "expression": "24*99",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "2c4c3362",
+                          "expression": "2376",
+                          "isFinal": true,
+                          "result": 2376.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Drop brackets: (24*99)",
+                      "edgeType": "drop_brackets"
+                    },
+                    {
+                      "id": "2c4c3362",
+                      "expression": "2376",
+                      "isFinal": true,
+                      "result": 2376.0,
+                      "children": [],
+                      "edgeLabel": "Compute 24 * 99",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 33 * 3",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 9 + 24",
+              "edgeType": "evaluate"
+            },
+            {
+              "id": "99449de8",
+              "expression": "(24*9+72)",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "7a08d8c5",
+                  "expression": "24*9+72",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "85398ff5",
+                      "expression": "216+72",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "94c755d5",
+                          "expression": "288",
+                          "isFinal": true,
+                          "result": 288.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '+' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 24 * 9",
+                      "edgeType": "evaluate"
+                    },
+                    {
+                      "id": "d23c894c",
+                      "expression": "24*81",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "aceea42d",
+                          "expression": "1944",
+                          "isFinal": true,
+                          "result": 1944.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Compute 9 + 72",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Drop brackets: (24*9+72)",
+                  "edgeType": "drop_brackets"
+                },
+                {
+                  "id": "05d5bfbe",
+                  "expression": "(216+72)",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "85398ff5",
+                      "expression": "216+72",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "94c755d5",
+                          "expression": "288",
+                          "isFinal": true,
+                          "result": 288.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '+' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Drop brackets: (216+72)",
+                      "edgeType": "drop_brackets"
+                    },
+                    {
+                      "id": "94c755d5",
+                      "expression": "288",
+                      "isFinal": true,
+                      "result": 288.0,
+                      "children": [],
+                      "edgeLabel": "Compute 216 + 72",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 24 * 9",
+                  "edgeType": "evaluate"
+                },
+                {
+                  "id": "d132a84c",
+                  "expression": "(24*81)",
+                  "isFinal": false,
+                  "result": null,
+                  "children": [
+                    {
+                      "id": "d23c894c",
+                      "expression": "24*81",
+                      "isFinal": false,
+                      "result": null,
+                      "children": [
+                        {
+                          "id": "aceea42d",
+                          "expression": "1944",
+                          "isFinal": true,
+                          "result": 1944.0,
+                          "children": [],
+                          "edgeLabel": "Compute all '*' operations",
+                          "edgeType": "evaluate"
+                        }
+                      ],
+                      "edgeLabel": "Drop brackets: (24*81)",
+                      "edgeType": "drop_brackets"
+                    },
+                    {
+                      "id": "aceea42d",
+                      "expression": "1944",
+                      "isFinal": true,
+                      "result": 1944.0,
+                      "children": [],
+                      "edgeLabel": "Compute 24 * 81",
+                      "edgeType": "evaluate"
+                    }
+                  ],
+                  "edgeLabel": "Compute 9 + 72",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 24 * 3",
+              "edgeType": "evaluate"
+            }
+          ],
+          "edgeLabel": "Distribute (9+3) * 24",
+          "edgeType": "distribute"
+        },
+        {
+          "id": "23b96876",
+          "expression": "24*9+3",
+          "isFinal": false,
+          "result": null,
+          "children": [
+            {
+              "id": "738f2fb4",
+              "expression": "216+3",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "89723dc5",
+                  "expression": "219",
+                  "isFinal": true,
+                  "result": 219.0,
+                  "children": [],
+                  "edgeLabel": "Compute all '+' operations",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 24 * 9",
+              "edgeType": "evaluate"
+            },
+            {
+              "id": "26bc8543",
+              "expression": "24*12",
+              "isFinal": false,
+              "result": null,
+              "children": [
+                {
+                  "id": "94c755d5",
+                  "expression": "288",
+                  "isFinal": true,
+                  "result": 288.0,
+                  "children": [],
+                  "edgeLabel": "Compute all '*' operations",
+                  "edgeType": "evaluate"
+                }
+              ],
+              "edgeLabel": "Compute 9 + 3",
+              "edgeType": "evaluate"
+            }
+          ],
+          "edgeLabel": "Drop brackets: (9+3)",
+          "edgeType": "drop_brackets"
+        },
+        {
+          "id": "26bc8543",
+          "expression": "24*12",
+          "isFinal": false,
+          "result": null,
+          "children": [
+            {
+              "id": "94c755d5",
+              "expression": "288",
               "isFinal": true,
-              "result": 0.0,
+              "result": 288.0,
               "children": [],
               "edgeLabel": "Compute all '*' operations",
               "edgeType": "evaluate"
             }
           ],
-          "edgeLabel": "Compute 7 - 7",
-          "edgeType": "evaluate"
-        },
-        {
-          "id": "00e41d3d",
-          "expression": "7-28",
-          "isFinal": false,
-          "result": null,
-          "children": [
-            {
-              "id": "1598d1df",
-              "expression": "-21",
-              "isFinal": true,
-              "result": -21.0,
-              "children": [],
-              "edgeLabel": "Compute all '-' operations",
-              "edgeType": "evaluate"
-            }
-          ],
-          "edgeLabel": "Compute 7 * 4",
+          "edgeLabel": "Compute 9 + 3",
           "edgeType": "evaluate"
         }
       ],
-      "edgeLabel": "Compute 4 + 3",
+      "edgeLabel": "Compute 48 / 2",
       "edgeType": "evaluate"
     },
     {
-      "id": "60294377",
-      "expression": "4+-4*4",
+      "id": "31727b7c",
+      "expression": "48/2*12",
       "isFinal": false,
       "result": null,
       "children": [
         {
-          "id": "5ef74d23",
-          "expression": "0*4",
+          "id": "26bc8543",
+          "expression": "24*12",
           "isFinal": false,
           "result": null,
           "children": [
             {
-              "id": "8c162df8",
-              "expression": "0",
+              "id": "94c755d5",
+              "expression": "288",
               "isFinal": true,
-              "result": 0.0,
+              "result": 288.0,
               "children": [],
               "edgeLabel": "Compute all '*' operations",
               "edgeType": "evaluate"
             }
           ],
-          "edgeLabel": "Compute 4 + -4",
+          "edgeLabel": "Compute 48 / 2",
           "edgeType": "evaluate"
         },
         {
-          "id": "e17dddb0",
-          "expression": "4+-16",
+          "id": "46c42a19",
+          "expression": "48/24",
           "isFinal": false,
           "result": null,
           "children": [
             {
-              "id": "ca1e7d09",
-              "expression": "-12",
+              "id": "8658fff9",
+              "expression": "2",
               "isFinal": true,
-              "result": -12.0,
+              "result": 2.0,
               "children": [],
-              "edgeLabel": "Compute all '+' operations",
+              "edgeLabel": "Compute all '/' operations",
               "edgeType": "evaluate"
             }
           ],
-          "edgeLabel": "Compute -4 * 4",
+          "edgeLabel": "Compute 2 * 12",
           "edgeType": "evaluate"
         }
       ],
-      "edgeLabel": "Compute 3 - 7",
-      "edgeType": "evaluate"
-    },
-    {
-      "id": "1eeb48ce",
-      "expression": "4+3-28",
-      "isFinal": false,
-      "result": null,
-      "children": [
-        {
-          "id": "00e41d3d",
-          "expression": "7-28",
-          "isFinal": false,
-          "result": null,
-          "children": [
-            {
-              "id": "1598d1df",
-              "expression": "-21",
-              "isFinal": true,
-              "result": -21.0,
-              "children": [],
-              "edgeLabel": "Compute all '-' operations",
-              "edgeType": "evaluate"
-            }
-          ],
-          "edgeLabel": "Compute 4 + 3",
-          "edgeType": "evaluate"
-        },
-        {
-          "id": "dda8d9fb",
-          "expression": "4+-25",
-          "isFinal": false,
-          "result": null,
-          "children": [
-            {
-              "id": "1598d1df",
-              "expression": "-21",
-              "isFinal": true,
-              "result": -21.0,
-              "children": [],
-              "edgeLabel": "Compute all '+' operations",
-              "edgeType": "evaluate"
-            }
-          ],
-          "edgeLabel": "Compute 3 - 28",
-          "edgeType": "evaluate"
-        }
-      ],
-      "edgeLabel": "Compute 7 * 4",
+      "edgeLabel": "Compute 9 + 3",
       "edgeType": "evaluate"
     }
   ]
 };
         const learnerData = {
-  "expression": "4+3-7*4",
+  "expression": "48/2*(9+3)",
   "tokens": [
-    "4",
+    "48",
+    "/",
+    "2",
+    "*",
+    "(",
+    "9",
     "+",
     "3",
-    "-",
-    "7",
-    "*",
-    "4"
+    ")"
   ],
   "initial_actions": [
     {
       "type": "evaluate",
-      "operator": "+",
+      "operator": "/",
       "operator_index": 1,
-      "description": "Compute 4 + 3"
+      "description": "Compute 48 / 2"
     },
     {
       "type": "evaluate",
-      "operator": "-",
-      "operator_index": 3,
-      "description": "Compute 3 - 7"
+      "operator": "+",
+      "operator_index": 6,
+      "description": "Compute 9 + 3"
     },
     {
-      "type": "evaluate",
+      "type": "distribute",
       "operator": "*",
-      "operator_index": 5,
-      "description": "Compute 7 * 4"
+      "operator_index": 3,
+      "description": "Distribute (9+3) * 2"
+    },
+    {
+      "type": "drop_brackets",
+      "operator": null,
+      "operator_index": 4,
+      "description": "Drop brackets: (9+3)"
     }
   ],
   "precedence_maps": {
@@ -1203,129 +3357,137 @@
     "expert": {
       "steps": [
         {
-          "state": "4+3-7*4",
+          "state": "48/2*(9+3)",
           "tokens": [
-            "4",
-            "+",
-            "3",
-            "-",
-            "7",
+            "48",
+            "/",
+            "2",
             "*",
-            "4"
-          ],
-          "all_actions": [
-            {
-              "type": "evaluate",
-              "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + 3"
-            },
-            {
-              "type": "evaluate",
-              "operator": "-",
-              "operator_index": 3,
-              "description": "Compute 3 - 7"
-            },
-            {
-              "type": "evaluate",
-              "operator": "*",
-              "operator_index": 5,
-              "description": "Compute 7 * 4"
-            }
-          ],
-          "valid_actions": [
-            {
-              "type": "evaluate",
-              "operator": "*",
-              "operator_index": 5,
-              "description": "Compute 7 * 4"
-            }
-          ],
-          "chosen_action": {
-            "type": "evaluate",
-            "operator": "*",
-            "operator_index": 5,
-            "description": "Compute 7 * 4"
-          }
-        },
-        {
-          "state": "4+3-28",
-          "tokens": [
-            "4",
+            "(",
+            "9",
             "+",
             "3",
-            "-",
-            "28"
+            ")"
           ],
           "all_actions": [
             {
               "type": "evaluate",
-              "operator": "+",
+              "operator": "/",
               "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "description": "Compute 48 / 2"
             },
             {
               "type": "evaluate",
-              "operator": "-",
+              "operator": "+",
+              "operator_index": 6,
+              "description": "Compute 9 + 3"
+            },
+            {
+              "type": "distribute",
+              "operator": "*",
               "operator_index": 3,
-              "description": "Compute 3 - 28"
+              "description": "Distribute (9+3) * 2"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 4,
+              "description": "Drop brackets: (9+3)"
             }
           ],
           "valid_actions": [
             {
               "type": "evaluate",
               "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "operator_index": 6,
+              "description": "Compute 9 + 3"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
             "operator": "+",
-            "operator_index": 1,
-            "description": "Compute 4 + 3"
+            "operator_index": 6,
+            "description": "Compute 9 + 3"
           }
         },
         {
-          "state": "7-28",
+          "state": "48/2*12",
           "tokens": [
-            "7",
-            "-",
-            "28"
+            "48",
+            "/",
+            "2",
+            "*",
+            "12"
           ],
           "all_actions": [
             {
               "type": "evaluate",
-              "operator": "-",
+              "operator": "/",
               "operator_index": 1,
-              "description": "Compute 7 - 28"
+              "description": "Compute 48 / 2"
+            },
+            {
+              "type": "evaluate",
+              "operator": "*",
+              "operator_index": 3,
+              "description": "Compute 2 * 12"
             }
           ],
           "valid_actions": [
             {
               "type": "evaluate",
-              "operator": "-",
+              "operator": "/",
               "operator_index": 1,
-              "description": "Compute 7 - 28"
+              "description": "Compute 48 / 2"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
-            "operator": "-",
+            "operator": "/",
             "operator_index": 1,
-            "description": "Compute 7 - 28"
+            "description": "Compute 48 / 2"
           }
         },
         {
-          "state": "-21",
+          "state": "24*12",
           "tokens": [
-            "-21"
+            "24",
+            "*",
+            "12"
+          ],
+          "all_actions": [
+            {
+              "type": "evaluate",
+              "operator": "*",
+              "operator_index": 1,
+              "description": "Compute 24 * 12"
+            }
+          ],
+          "valid_actions": [
+            {
+              "type": "evaluate",
+              "operator": "*",
+              "operator_index": 1,
+              "description": "Compute 24 * 12"
+            }
+          ],
+          "chosen_action": {
+            "type": "evaluate",
+            "operator": "*",
+            "operator_index": 1,
+            "description": "Compute 24 * 12"
+          }
+        },
+        {
+          "state": "288",
+          "tokens": [
+            "288"
           ],
           "is_final": true,
-          "result": -21.0
+          "result": 288.0
         }
       ],
-      "final_result": -21.0,
+      "final_result": 288.0,
       "precedence": "bodmas",
       "policies": [
         "highest_precedence_first",
@@ -1338,129 +3500,163 @@
     "bodmas_correct": {
       "steps": [
         {
-          "state": "4+3-7*4",
+          "state": "48/2*(9+3)",
           "tokens": [
-            "4",
+            "48",
+            "/",
+            "2",
+            "*",
+            "(",
+            "9",
             "+",
             "3",
-            "-",
-            "7",
-            "*",
-            "4"
+            ")"
           ],
           "all_actions": [
             {
               "type": "evaluate",
-              "operator": "+",
+              "operator": "/",
               "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "description": "Compute 48 / 2"
             },
             {
               "type": "evaluate",
-              "operator": "-",
-              "operator_index": 3,
-              "description": "Compute 3 - 7"
+              "operator": "+",
+              "operator_index": 6,
+              "description": "Compute 9 + 3"
             },
             {
-              "type": "evaluate",
+              "type": "distribute",
               "operator": "*",
-              "operator_index": 5,
-              "description": "Compute 7 * 4"
+              "operator_index": 3,
+              "description": "Distribute (9+3) * 2"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 4,
+              "description": "Drop brackets: (9+3)"
             }
           ],
           "valid_actions": [
             {
               "type": "evaluate",
+              "operator": "/",
+              "operator_index": 1,
+              "description": "Compute 48 / 2"
+            },
+            {
+              "type": "evaluate",
+              "operator": "+",
+              "operator_index": 6,
+              "description": "Compute 9 + 3"
+            },
+            {
+              "type": "distribute",
               "operator": "*",
-              "operator_index": 5,
-              "description": "Compute 7 * 4"
+              "operator_index": 3,
+              "description": "Distribute (9+3) * 2"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
-            "operator": "*",
-            "operator_index": 5,
-            "description": "Compute 7 * 4"
+            "operator": "/",
+            "operator_index": 1,
+            "description": "Compute 48 / 2"
           }
         },
         {
-          "state": "4+3-28",
+          "state": "24*(9+3)",
           "tokens": [
-            "4",
+            "24",
+            "*",
+            "(",
+            "9",
             "+",
             "3",
-            "-",
-            "28"
+            ")"
           ],
           "all_actions": [
             {
               "type": "evaluate",
               "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "operator_index": 4,
+              "description": "Compute 9 + 3"
             },
             {
-              "type": "evaluate",
-              "operator": "-",
-              "operator_index": 3,
-              "description": "Compute 3 - 28"
+              "type": "distribute",
+              "operator": "*",
+              "operator_index": 1,
+              "description": "Distribute (9+3) * 24"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 2,
+              "description": "Drop brackets: (9+3)"
             }
           ],
           "valid_actions": [
             {
               "type": "evaluate",
               "operator": "+",
+              "operator_index": 4,
+              "description": "Compute 9 + 3"
+            },
+            {
+              "type": "distribute",
+              "operator": "*",
               "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "description": "Distribute (9+3) * 24"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
             "operator": "+",
-            "operator_index": 1,
-            "description": "Compute 4 + 3"
+            "operator_index": 4,
+            "description": "Compute 9 + 3"
           }
         },
         {
-          "state": "7-28",
+          "state": "24*12",
           "tokens": [
-            "7",
-            "-",
-            "28"
+            "24",
+            "*",
+            "12"
           ],
           "all_actions": [
             {
               "type": "evaluate",
-              "operator": "-",
+              "operator": "*",
               "operator_index": 1,
-              "description": "Compute 7 - 28"
+              "description": "Compute 24 * 12"
             }
           ],
           "valid_actions": [
             {
               "type": "evaluate",
-              "operator": "-",
+              "operator": "*",
               "operator_index": 1,
-              "description": "Compute 7 - 28"
+              "description": "Compute 24 * 12"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
-            "operator": "-",
+            "operator": "*",
             "operator_index": 1,
-            "description": "Compute 7 - 28"
+            "description": "Compute 24 * 12"
           }
         },
         {
-          "state": "-21",
+          "state": "288",
           "tokens": [
-            "-21"
+            "288"
           ],
           "is_final": true,
-          "result": -21.0
+          "result": 288.0
         }
       ],
-      "final_result": -21.0,
+      "final_result": 288.0,
       "precedence": "bodmas",
       "policies": [
         "highest_precedence_first",
@@ -1472,102 +3668,110 @@
     "addition_first": {
       "steps": [
         {
-          "state": "4+3-7*4",
+          "state": "48/2*(9+3)",
           "tokens": [
-            "4",
+            "48",
+            "/",
+            "2",
+            "*",
+            "(",
+            "9",
             "+",
             "3",
-            "-",
-            "7",
-            "*",
-            "4"
+            ")"
           ],
           "all_actions": [
             {
               "type": "evaluate",
-              "operator": "+",
+              "operator": "/",
               "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "description": "Compute 48 / 2"
             },
             {
               "type": "evaluate",
-              "operator": "-",
-              "operator_index": 3,
-              "description": "Compute 3 - 7"
+              "operator": "+",
+              "operator_index": 6,
+              "description": "Compute 9 + 3"
             },
             {
-              "type": "evaluate",
+              "type": "distribute",
               "operator": "*",
-              "operator_index": 5,
-              "description": "Compute 7 * 4"
+              "operator_index": 3,
+              "description": "Distribute (9+3) * 2"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 4,
+              "description": "Drop brackets: (9+3)"
             }
           ],
           "valid_actions": [
             {
               "type": "evaluate",
               "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "operator_index": 6,
+              "description": "Compute 9 + 3"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
             "operator": "+",
-            "operator_index": 1,
-            "description": "Compute 4 + 3"
+            "operator_index": 6,
+            "description": "Compute 9 + 3"
           }
         },
         {
-          "state": "7-7*4",
+          "state": "48/2*12",
           "tokens": [
-            "7",
-            "-",
-            "7",
+            "48",
+            "/",
+            "2",
             "*",
-            "4"
+            "12"
           ],
           "all_actions": [
             {
               "type": "evaluate",
-              "operator": "-",
+              "operator": "/",
               "operator_index": 1,
-              "description": "Compute 7 - 7"
+              "description": "Compute 48 / 2"
             },
             {
               "type": "evaluate",
               "operator": "*",
               "operator_index": 3,
-              "description": "Compute 7 * 4"
+              "description": "Compute 2 * 12"
             }
           ],
           "valid_actions": [
             {
               "type": "evaluate",
-              "operator": "-",
+              "operator": "/",
               "operator_index": 1,
-              "description": "Compute 7 - 7"
+              "description": "Compute 48 / 2"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
-            "operator": "-",
+            "operator": "/",
             "operator_index": 1,
-            "description": "Compute 7 - 7"
+            "description": "Compute 48 / 2"
           }
         },
         {
-          "state": "0*4",
+          "state": "24*12",
           "tokens": [
-            "0",
+            "24",
             "*",
-            "4"
+            "12"
           ],
           "all_actions": [
             {
               "type": "evaluate",
               "operator": "*",
               "operator_index": 1,
-              "description": "Compute 0 * 4"
+              "description": "Compute 24 * 12"
             }
           ],
           "valid_actions": [
@@ -1575,26 +3779,26 @@
               "type": "evaluate",
               "operator": "*",
               "operator_index": 1,
-              "description": "Compute 0 * 4"
+              "description": "Compute 24 * 12"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
             "operator": "*",
             "operator_index": 1,
-            "description": "Compute 0 * 4"
+            "description": "Compute 24 * 12"
           }
         },
         {
-          "state": "0",
+          "state": "288",
           "tokens": [
-            "0"
+            "288"
           ],
           "is_final": true,
-          "result": 0.0
+          "result": 288.0
         }
       ],
-      "final_result": 0.0,
+      "final_result": 288.0,
       "precedence": "addition_first",
       "policies": [
         "highest_precedence_first",
@@ -1606,129 +3810,243 @@
     "multiplication_first": {
       "steps": [
         {
-          "state": "4+3-7*4",
+          "state": "48/2*(9+3)",
           "tokens": [
-            "4",
+            "48",
+            "/",
+            "2",
+            "*",
+            "(",
+            "9",
             "+",
             "3",
-            "-",
-            "7",
-            "*",
-            "4"
+            ")"
           ],
           "all_actions": [
             {
               "type": "evaluate",
-              "operator": "+",
+              "operator": "/",
               "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "description": "Compute 48 / 2"
             },
             {
               "type": "evaluate",
-              "operator": "-",
+              "operator": "+",
+              "operator_index": 6,
+              "description": "Compute 9 + 3"
+            },
+            {
+              "type": "distribute",
+              "operator": "*",
               "operator_index": 3,
-              "description": "Compute 3 - 7"
+              "description": "Distribute (9+3) * 2"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 4,
+              "description": "Drop brackets: (9+3)"
+            }
+          ],
+          "valid_actions": [
+            {
+              "type": "distribute",
+              "operator": "*",
+              "operator_index": 3,
+              "description": "Distribute (9+3) * 2"
+            }
+          ],
+          "chosen_action": {
+            "type": "distribute",
+            "operator": "*",
+            "operator_index": 3,
+            "description": "Distribute (9+3) * 2"
+          }
+        },
+        {
+          "state": "48/(2*9+2*3)",
+          "tokens": [
+            "48",
+            "/",
+            "(",
+            "2",
+            "*",
+            "9",
+            "+",
+            "2",
+            "*",
+            "3",
+            ")"
+          ],
+          "all_actions": [
+            {
+              "type": "evaluate",
+              "operator": "*",
+              "operator_index": 4,
+              "description": "Compute 2 * 9"
+            },
+            {
+              "type": "evaluate",
+              "operator": "+",
+              "operator_index": 6,
+              "description": "Compute 9 + 2"
             },
             {
               "type": "evaluate",
               "operator": "*",
-              "operator_index": 5,
-              "description": "Compute 7 * 4"
+              "operator_index": 8,
+              "description": "Compute 2 * 3"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 2,
+              "description": "Drop brackets: (2*9+2*3)"
             }
           ],
           "valid_actions": [
             {
               "type": "evaluate",
               "operator": "*",
-              "operator_index": 5,
-              "description": "Compute 7 * 4"
+              "operator_index": 4,
+              "description": "Compute 2 * 9"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
             "operator": "*",
-            "operator_index": 5,
-            "description": "Compute 7 * 4"
+            "operator_index": 4,
+            "description": "Compute 2 * 9"
           }
         },
         {
-          "state": "4+3-28",
+          "state": "48/(18+2*3)",
           "tokens": [
-            "4",
+            "48",
+            "/",
+            "(",
+            "18",
             "+",
+            "2",
+            "*",
             "3",
-            "-",
-            "28"
+            ")"
           ],
           "all_actions": [
             {
               "type": "evaluate",
               "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "operator_index": 4,
+              "description": "Compute 18 + 2"
             },
             {
               "type": "evaluate",
-              "operator": "-",
-              "operator_index": 3,
-              "description": "Compute 3 - 28"
+              "operator": "*",
+              "operator_index": 6,
+              "description": "Compute 2 * 3"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 2,
+              "description": "Drop brackets: (18+2*3)"
+            }
+          ],
+          "valid_actions": [
+            {
+              "type": "evaluate",
+              "operator": "*",
+              "operator_index": 6,
+              "description": "Compute 2 * 3"
+            }
+          ],
+          "chosen_action": {
+            "type": "evaluate",
+            "operator": "*",
+            "operator_index": 6,
+            "description": "Compute 2 * 3"
+          }
+        },
+        {
+          "state": "48/(18+6)",
+          "tokens": [
+            "48",
+            "/",
+            "(",
+            "18",
+            "+",
+            "6",
+            ")"
+          ],
+          "all_actions": [
+            {
+              "type": "evaluate",
+              "operator": "+",
+              "operator_index": 4,
+              "description": "Compute 18 + 6"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 2,
+              "description": "Drop brackets: (18+6)"
             }
           ],
           "valid_actions": [
             {
               "type": "evaluate",
               "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "operator_index": 4,
+              "description": "Compute 18 + 6"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
             "operator": "+",
-            "operator_index": 1,
-            "description": "Compute 4 + 3"
+            "operator_index": 4,
+            "description": "Compute 18 + 6"
           }
         },
         {
-          "state": "7-28",
+          "state": "48/24",
           "tokens": [
-            "7",
-            "-",
-            "28"
+            "48",
+            "/",
+            "24"
           ],
           "all_actions": [
             {
               "type": "evaluate",
-              "operator": "-",
+              "operator": "/",
               "operator_index": 1,
-              "description": "Compute 7 - 28"
+              "description": "Compute 48 / 24"
             }
           ],
           "valid_actions": [
             {
               "type": "evaluate",
-              "operator": "-",
+              "operator": "/",
               "operator_index": 1,
-              "description": "Compute 7 - 28"
+              "description": "Compute 48 / 24"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
-            "operator": "-",
+            "operator": "/",
             "operator_index": 1,
-            "description": "Compute 7 - 28"
+            "description": "Compute 48 / 24"
           }
         },
         {
-          "state": "-21",
+          "state": "2",
           "tokens": [
-            "-21"
+            "2"
           ],
           "is_final": true,
-          "result": -21.0
+          "result": 2.0
         }
       ],
-      "final_result": -21.0,
+      "final_result": 2.0,
       "precedence": "multiplication_first",
       "policies": [
         "highest_precedence_first",
@@ -1741,102 +4059,130 @@
     "left_to_right_only": {
       "steps": [
         {
-          "state": "4+3-7*4",
+          "state": "48/2*(9+3)",
           "tokens": [
-            "4",
+            "48",
+            "/",
+            "2",
+            "*",
+            "(",
+            "9",
             "+",
             "3",
-            "-",
-            "7",
+            ")"
+          ],
+          "all_actions": [
+            {
+              "type": "evaluate",
+              "operator": "/",
+              "operator_index": 1,
+              "description": "Compute 48 / 2"
+            },
+            {
+              "type": "evaluate",
+              "operator": "+",
+              "operator_index": 6,
+              "description": "Compute 9 + 3"
+            },
+            {
+              "type": "distribute",
+              "operator": "*",
+              "operator_index": 3,
+              "description": "Distribute (9+3) * 2"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 4,
+              "description": "Drop brackets: (9+3)"
+            }
+          ],
+          "valid_actions": [
+            {
+              "type": "evaluate",
+              "operator": "/",
+              "operator_index": 1,
+              "description": "Compute 48 / 2"
+            },
+            {
+              "type": "distribute",
+              "operator": "*",
+              "operator_index": 3,
+              "description": "Distribute (9+3) * 2"
+            }
+          ],
+          "chosen_action": {
+            "type": "evaluate",
+            "operator": "/",
+            "operator_index": 1,
+            "description": "Compute 48 / 2"
+          }
+        },
+        {
+          "state": "24*(9+3)",
+          "tokens": [
+            "24",
             "*",
-            "4"
+            "(",
+            "9",
+            "+",
+            "3",
+            ")"
           ],
           "all_actions": [
             {
               "type": "evaluate",
               "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "operator_index": 4,
+              "description": "Compute 9 + 3"
             },
             {
-              "type": "evaluate",
-              "operator": "-",
-              "operator_index": 3,
-              "description": "Compute 3 - 7"
-            },
-            {
-              "type": "evaluate",
+              "type": "distribute",
               "operator": "*",
-              "operator_index": 5,
-              "description": "Compute 7 * 4"
+              "operator_index": 1,
+              "description": "Distribute (9+3) * 24"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 2,
+              "description": "Drop brackets: (9+3)"
             }
           ],
           "valid_actions": [
             {
               "type": "evaluate",
               "operator": "+",
+              "operator_index": 4,
+              "description": "Compute 9 + 3"
+            },
+            {
+              "type": "distribute",
+              "operator": "*",
               "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "description": "Distribute (9+3) * 24"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
             "operator": "+",
-            "operator_index": 1,
-            "description": "Compute 4 + 3"
+            "operator_index": 4,
+            "description": "Compute 9 + 3"
           }
         },
         {
-          "state": "7-7*4",
+          "state": "24*12",
           "tokens": [
-            "7",
-            "-",
-            "7",
+            "24",
             "*",
-            "4"
-          ],
-          "all_actions": [
-            {
-              "type": "evaluate",
-              "operator": "-",
-              "operator_index": 1,
-              "description": "Compute 7 - 7"
-            },
-            {
-              "type": "evaluate",
-              "operator": "*",
-              "operator_index": 3,
-              "description": "Compute 7 * 4"
-            }
-          ],
-          "valid_actions": [
-            {
-              "type": "evaluate",
-              "operator": "-",
-              "operator_index": 1,
-              "description": "Compute 7 - 7"
-            }
-          ],
-          "chosen_action": {
-            "type": "evaluate",
-            "operator": "-",
-            "operator_index": 1,
-            "description": "Compute 7 - 7"
-          }
-        },
-        {
-          "state": "0*4",
-          "tokens": [
-            "0",
-            "*",
-            "4"
+            "12"
           ],
           "all_actions": [
             {
               "type": "evaluate",
               "operator": "*",
               "operator_index": 1,
-              "description": "Compute 0 * 4"
+              "description": "Compute 24 * 12"
             }
           ],
           "valid_actions": [
@@ -1844,26 +4190,26 @@
               "type": "evaluate",
               "operator": "*",
               "operator_index": 1,
-              "description": "Compute 0 * 4"
+              "description": "Compute 24 * 12"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
             "operator": "*",
             "operator_index": 1,
-            "description": "Compute 0 * 4"
+            "description": "Compute 24 * 12"
           }
         },
         {
-          "state": "0",
+          "state": "288",
           "tokens": [
-            "0"
+            "288"
           ],
           "is_final": true,
-          "result": 0.0
+          "result": 288.0
         }
       ],
-      "final_result": 0.0,
+      "final_result": 288.0,
       "precedence": "flat",
       "policies": [
         "left_to_right_strict",
@@ -1874,129 +4220,143 @@
     "right_to_left": {
       "steps": [
         {
-          "state": "4+3-7*4",
+          "state": "48/2*(9+3)",
           "tokens": [
-            "4",
-            "+",
-            "3",
-            "-",
-            "7",
+            "48",
+            "/",
+            "2",
             "*",
-            "4"
-          ],
-          "all_actions": [
-            {
-              "type": "evaluate",
-              "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + 3"
-            },
-            {
-              "type": "evaluate",
-              "operator": "-",
-              "operator_index": 3,
-              "description": "Compute 3 - 7"
-            },
-            {
-              "type": "evaluate",
-              "operator": "*",
-              "operator_index": 5,
-              "description": "Compute 7 * 4"
-            }
-          ],
-          "valid_actions": [
-            {
-              "type": "evaluate",
-              "operator": "*",
-              "operator_index": 5,
-              "description": "Compute 7 * 4"
-            }
-          ],
-          "chosen_action": {
-            "type": "evaluate",
-            "operator": "*",
-            "operator_index": 5,
-            "description": "Compute 7 * 4"
-          }
-        },
-        {
-          "state": "4+3-28",
-          "tokens": [
-            "4",
+            "(",
+            "9",
             "+",
             "3",
-            "-",
-            "28"
+            ")"
           ],
           "all_actions": [
             {
               "type": "evaluate",
-              "operator": "+",
+              "operator": "/",
               "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "description": "Compute 48 / 2"
             },
             {
               "type": "evaluate",
-              "operator": "-",
-              "operator_index": 3,
-              "description": "Compute 3 - 28"
-            }
-          ],
-          "valid_actions": [
-            {
-              "type": "evaluate",
-              "operator": "-",
-              "operator_index": 3,
-              "description": "Compute 3 - 28"
-            }
-          ],
-          "chosen_action": {
-            "type": "evaluate",
-            "operator": "-",
-            "operator_index": 3,
-            "description": "Compute 3 - 28"
-          }
-        },
-        {
-          "state": "4+-25",
-          "tokens": [
-            "4",
-            "+",
-            "-25"
-          ],
-          "all_actions": [
-            {
-              "type": "evaluate",
               "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + -25"
+              "operator_index": 6,
+              "description": "Compute 9 + 3"
+            },
+            {
+              "type": "distribute",
+              "operator": "*",
+              "operator_index": 3,
+              "description": "Distribute (9+3) * 2"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 4,
+              "description": "Drop brackets: (9+3)"
             }
           ],
           "valid_actions": [
             {
               "type": "evaluate",
               "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + -25"
+              "operator_index": 6,
+              "description": "Compute 9 + 3"
+            },
+            {
+              "type": "distribute",
+              "operator": "*",
+              "operator_index": 3,
+              "description": "Distribute (9+3) * 2"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
             "operator": "+",
-            "operator_index": 1,
-            "description": "Compute 4 + -25"
+            "operator_index": 6,
+            "description": "Compute 9 + 3"
           }
         },
         {
-          "state": "-21",
+          "state": "48/2*12",
           "tokens": [
-            "-21"
+            "48",
+            "/",
+            "2",
+            "*",
+            "12"
+          ],
+          "all_actions": [
+            {
+              "type": "evaluate",
+              "operator": "/",
+              "operator_index": 1,
+              "description": "Compute 48 / 2"
+            },
+            {
+              "type": "evaluate",
+              "operator": "*",
+              "operator_index": 3,
+              "description": "Compute 2 * 12"
+            }
+          ],
+          "valid_actions": [
+            {
+              "type": "evaluate",
+              "operator": "*",
+              "operator_index": 3,
+              "description": "Compute 2 * 12"
+            }
+          ],
+          "chosen_action": {
+            "type": "evaluate",
+            "operator": "*",
+            "operator_index": 3,
+            "description": "Compute 2 * 12"
+          }
+        },
+        {
+          "state": "48/24",
+          "tokens": [
+            "48",
+            "/",
+            "24"
+          ],
+          "all_actions": [
+            {
+              "type": "evaluate",
+              "operator": "/",
+              "operator_index": 1,
+              "description": "Compute 48 / 24"
+            }
+          ],
+          "valid_actions": [
+            {
+              "type": "evaluate",
+              "operator": "/",
+              "operator_index": 1,
+              "description": "Compute 48 / 24"
+            }
+          ],
+          "chosen_action": {
+            "type": "evaluate",
+            "operator": "/",
+            "operator_index": 1,
+            "description": "Compute 48 / 24"
+          }
+        },
+        {
+          "state": "2",
+          "tokens": [
+            "2"
           ],
           "is_final": true,
-          "result": -21.0
+          "result": 2.0
         }
       ],
-      "final_result": -21.0,
+      "final_result": 2.0,
       "precedence": "flat",
       "policies": [
         "right_to_left_strict",
@@ -2007,120 +4367,148 @@
     "novice": {
       "steps": [
         {
-          "state": "4+3-7*4",
+          "state": "48/2*(9+3)",
           "tokens": [
-            "4",
+            "48",
+            "/",
+            "2",
+            "*",
+            "(",
+            "9",
             "+",
             "3",
-            "-",
-            "7",
+            ")"
+          ],
+          "all_actions": [
+            {
+              "type": "evaluate",
+              "operator": "/",
+              "operator_index": 1,
+              "description": "Compute 48 / 2"
+            },
+            {
+              "type": "evaluate",
+              "operator": "+",
+              "operator_index": 6,
+              "description": "Compute 9 + 3"
+            },
+            {
+              "type": "distribute",
+              "operator": "*",
+              "operator_index": 3,
+              "description": "Distribute (9+3) * 2"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 4,
+              "description": "Drop brackets: (9+3)"
+            }
+          ],
+          "valid_actions": [
+            {
+              "type": "evaluate",
+              "operator": "/",
+              "operator_index": 1,
+              "description": "Compute 48 / 2"
+            },
+            {
+              "type": "evaluate",
+              "operator": "+",
+              "operator_index": 6,
+              "description": "Compute 9 + 3"
+            },
+            {
+              "type": "distribute",
+              "operator": "*",
+              "operator_index": 3,
+              "description": "Distribute (9+3) * 2"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 4,
+              "description": "Drop brackets: (9+3)"
+            }
+          ],
+          "chosen_action": {
+            "type": "evaluate",
+            "operator": "/",
+            "operator_index": 1,
+            "description": "Compute 48 / 2"
+          }
+        },
+        {
+          "state": "24*(9+3)",
+          "tokens": [
+            "24",
             "*",
-            "4"
+            "(",
+            "9",
+            "+",
+            "3",
+            ")"
           ],
           "all_actions": [
             {
               "type": "evaluate",
               "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "operator_index": 4,
+              "description": "Compute 9 + 3"
             },
             {
-              "type": "evaluate",
-              "operator": "-",
-              "operator_index": 3,
-              "description": "Compute 3 - 7"
-            },
-            {
-              "type": "evaluate",
+              "type": "distribute",
               "operator": "*",
-              "operator_index": 5,
-              "description": "Compute 7 * 4"
+              "operator_index": 1,
+              "description": "Distribute (9+3) * 24"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 2,
+              "description": "Drop brackets: (9+3)"
             }
           ],
           "valid_actions": [
             {
               "type": "evaluate",
               "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "operator_index": 4,
+              "description": "Compute 9 + 3"
             },
             {
-              "type": "evaluate",
-              "operator": "-",
-              "operator_index": 3,
-              "description": "Compute 3 - 7"
-            },
-            {
-              "type": "evaluate",
+              "type": "distribute",
               "operator": "*",
-              "operator_index": 5,
-              "description": "Compute 7 * 4"
+              "operator_index": 1,
+              "description": "Distribute (9+3) * 24"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 2,
+              "description": "Drop brackets: (9+3)"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
             "operator": "+",
-            "operator_index": 1,
-            "description": "Compute 4 + 3"
+            "operator_index": 4,
+            "description": "Compute 9 + 3"
           }
         },
         {
-          "state": "7-7*4",
+          "state": "24*12",
           "tokens": [
-            "7",
-            "-",
-            "7",
+            "24",
             "*",
-            "4"
-          ],
-          "all_actions": [
-            {
-              "type": "evaluate",
-              "operator": "-",
-              "operator_index": 1,
-              "description": "Compute 7 - 7"
-            },
-            {
-              "type": "evaluate",
-              "operator": "*",
-              "operator_index": 3,
-              "description": "Compute 7 * 4"
-            }
-          ],
-          "valid_actions": [
-            {
-              "type": "evaluate",
-              "operator": "-",
-              "operator_index": 1,
-              "description": "Compute 7 - 7"
-            },
-            {
-              "type": "evaluate",
-              "operator": "*",
-              "operator_index": 3,
-              "description": "Compute 7 * 4"
-            }
-          ],
-          "chosen_action": {
-            "type": "evaluate",
-            "operator": "-",
-            "operator_index": 1,
-            "description": "Compute 7 - 7"
-          }
-        },
-        {
-          "state": "0*4",
-          "tokens": [
-            "0",
-            "*",
-            "4"
+            "12"
           ],
           "all_actions": [
             {
               "type": "evaluate",
               "operator": "*",
               "operator_index": 1,
-              "description": "Compute 0 * 4"
+              "description": "Compute 24 * 12"
             }
           ],
           "valid_actions": [
@@ -2128,26 +4516,26 @@
               "type": "evaluate",
               "operator": "*",
               "operator_index": 1,
-              "description": "Compute 0 * 4"
+              "description": "Compute 24 * 12"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
             "operator": "*",
             "operator_index": 1,
-            "description": "Compute 0 * 4"
+            "description": "Compute 24 * 12"
           }
         },
         {
-          "state": "0",
+          "state": "288",
           "tokens": [
-            "0"
+            "288"
           ],
           "is_final": true,
-          "result": 0.0
+          "result": 288.0
         }
       ],
-      "final_result": 0.0,
+      "final_result": 288.0,
       "precedence": "flat",
       "policies": [
         "allow_all"
@@ -2157,102 +4545,132 @@
     "bracket_ignorer": {
       "steps": [
         {
-          "state": "4+3-7*4",
+          "state": "48/2*(9+3)",
           "tokens": [
-            "4",
+            "48",
+            "/",
+            "2",
+            "*",
+            "(",
+            "9",
             "+",
             "3",
-            "-",
-            "7",
+            ")"
+          ],
+          "all_actions": [
+            {
+              "type": "evaluate",
+              "operator": "/",
+              "operator_index": 1,
+              "description": "Compute 48 / 2"
+            },
+            {
+              "type": "evaluate",
+              "operator": "+",
+              "operator_index": 6,
+              "description": "Compute 9 + 3"
+            },
+            {
+              "type": "distribute",
+              "operator": "*",
+              "operator_index": 3,
+              "description": "Distribute (9+3) * 2"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 4,
+              "description": "Drop brackets: (9+3)"
+            }
+          ],
+          "valid_actions": [
+            {
+              "type": "evaluate",
+              "operator": "/",
+              "operator_index": 1,
+              "description": "Compute 48 / 2"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 4,
+              "description": "Drop brackets: (9+3)"
+            }
+          ],
+          "chosen_action": {
+            "type": "evaluate",
+            "operator": "/",
+            "operator_index": 1,
+            "description": "Compute 48 / 2"
+          }
+        },
+        {
+          "state": "24*(9+3)",
+          "tokens": [
+            "24",
             "*",
-            "4"
+            "(",
+            "9",
+            "+",
+            "3",
+            ")"
           ],
           "all_actions": [
             {
               "type": "evaluate",
               "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "operator_index": 4,
+              "description": "Compute 9 + 3"
             },
             {
-              "type": "evaluate",
-              "operator": "-",
-              "operator_index": 3,
-              "description": "Compute 3 - 7"
-            },
-            {
-              "type": "evaluate",
+              "type": "distribute",
               "operator": "*",
-              "operator_index": 5,
-              "description": "Compute 7 * 4"
+              "operator_index": 1,
+              "description": "Distribute (9+3) * 24"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 2,
+              "description": "Drop brackets: (9+3)"
             }
           ],
           "valid_actions": [
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 2,
+              "description": "Drop brackets: (9+3)"
+            }
+          ],
+          "chosen_action": {
+            "type": "drop_brackets",
+            "operator": null,
+            "operator_index": 2,
+            "description": "Drop brackets: (9+3)"
+          }
+        },
+        {
+          "state": "24*9+3",
+          "tokens": [
+            "24",
+            "*",
+            "9",
+            "+",
+            "3"
+          ],
+          "all_actions": [
+            {
+              "type": "evaluate",
+              "operator": "*",
+              "operator_index": 1,
+              "description": "Compute 24 * 9"
+            },
             {
               "type": "evaluate",
               "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + 3"
-            }
-          ],
-          "chosen_action": {
-            "type": "evaluate",
-            "operator": "+",
-            "operator_index": 1,
-            "description": "Compute 4 + 3"
-          }
-        },
-        {
-          "state": "7-7*4",
-          "tokens": [
-            "7",
-            "-",
-            "7",
-            "*",
-            "4"
-          ],
-          "all_actions": [
-            {
-              "type": "evaluate",
-              "operator": "-",
-              "operator_index": 1,
-              "description": "Compute 7 - 7"
-            },
-            {
-              "type": "evaluate",
-              "operator": "*",
               "operator_index": 3,
-              "description": "Compute 7 * 4"
-            }
-          ],
-          "valid_actions": [
-            {
-              "type": "evaluate",
-              "operator": "-",
-              "operator_index": 1,
-              "description": "Compute 7 - 7"
-            }
-          ],
-          "chosen_action": {
-            "type": "evaluate",
-            "operator": "-",
-            "operator_index": 1,
-            "description": "Compute 7 - 7"
-          }
-        },
-        {
-          "state": "0*4",
-          "tokens": [
-            "0",
-            "*",
-            "4"
-          ],
-          "all_actions": [
-            {
-              "type": "evaluate",
-              "operator": "*",
-              "operator_index": 1,
-              "description": "Compute 0 * 4"
+              "description": "Compute 9 + 3"
             }
           ],
           "valid_actions": [
@@ -2260,26 +4678,56 @@
               "type": "evaluate",
               "operator": "*",
               "operator_index": 1,
-              "description": "Compute 0 * 4"
+              "description": "Compute 24 * 9"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
             "operator": "*",
             "operator_index": 1,
-            "description": "Compute 0 * 4"
+            "description": "Compute 24 * 9"
           }
         },
         {
-          "state": "0",
+          "state": "216+3",
           "tokens": [
-            "0"
+            "216",
+            "+",
+            "3"
+          ],
+          "all_actions": [
+            {
+              "type": "evaluate",
+              "operator": "+",
+              "operator_index": 1,
+              "description": "Compute 216 + 3"
+            }
+          ],
+          "valid_actions": [
+            {
+              "type": "evaluate",
+              "operator": "+",
+              "operator_index": 1,
+              "description": "Compute 216 + 3"
+            }
+          ],
+          "chosen_action": {
+            "type": "evaluate",
+            "operator": "+",
+            "operator_index": 1,
+            "description": "Compute 216 + 3"
+          }
+        },
+        {
+          "state": "219",
+          "tokens": [
+            "219"
           ],
           "is_final": true,
-          "result": 0.0
+          "result": 219.0
         }
       ],
-      "final_result": 0.0,
+      "final_result": 219.0,
       "precedence": "flat",
       "policies": [
         "left_to_right_strict",
@@ -2290,129 +4738,243 @@
     "distributor": {
       "steps": [
         {
-          "state": "4+3-7*4",
+          "state": "48/2*(9+3)",
           "tokens": [
-            "4",
+            "48",
+            "/",
+            "2",
+            "*",
+            "(",
+            "9",
             "+",
             "3",
-            "-",
-            "7",
-            "*",
-            "4"
+            ")"
           ],
           "all_actions": [
             {
               "type": "evaluate",
-              "operator": "+",
+              "operator": "/",
               "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "description": "Compute 48 / 2"
             },
             {
               "type": "evaluate",
-              "operator": "-",
+              "operator": "+",
+              "operator_index": 6,
+              "description": "Compute 9 + 3"
+            },
+            {
+              "type": "distribute",
+              "operator": "*",
               "operator_index": 3,
-              "description": "Compute 3 - 7"
+              "description": "Distribute (9+3) * 2"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 4,
+              "description": "Drop brackets: (9+3)"
+            }
+          ],
+          "valid_actions": [
+            {
+              "type": "distribute",
+              "operator": "*",
+              "operator_index": 3,
+              "description": "Distribute (9+3) * 2"
+            }
+          ],
+          "chosen_action": {
+            "type": "distribute",
+            "operator": "*",
+            "operator_index": 3,
+            "description": "Distribute (9+3) * 2"
+          }
+        },
+        {
+          "state": "48/(2*9+2*3)",
+          "tokens": [
+            "48",
+            "/",
+            "(",
+            "2",
+            "*",
+            "9",
+            "+",
+            "2",
+            "*",
+            "3",
+            ")"
+          ],
+          "all_actions": [
+            {
+              "type": "evaluate",
+              "operator": "*",
+              "operator_index": 4,
+              "description": "Compute 2 * 9"
+            },
+            {
+              "type": "evaluate",
+              "operator": "+",
+              "operator_index": 6,
+              "description": "Compute 9 + 2"
             },
             {
               "type": "evaluate",
               "operator": "*",
-              "operator_index": 5,
-              "description": "Compute 7 * 4"
+              "operator_index": 8,
+              "description": "Compute 2 * 3"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 2,
+              "description": "Drop brackets: (2*9+2*3)"
             }
           ],
           "valid_actions": [
             {
               "type": "evaluate",
               "operator": "*",
-              "operator_index": 5,
-              "description": "Compute 7 * 4"
+              "operator_index": 4,
+              "description": "Compute 2 * 9"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
             "operator": "*",
-            "operator_index": 5,
-            "description": "Compute 7 * 4"
+            "operator_index": 4,
+            "description": "Compute 2 * 9"
           }
         },
         {
-          "state": "4+3-28",
+          "state": "48/(18+2*3)",
           "tokens": [
-            "4",
+            "48",
+            "/",
+            "(",
+            "18",
             "+",
+            "2",
+            "*",
             "3",
-            "-",
-            "28"
+            ")"
           ],
           "all_actions": [
             {
               "type": "evaluate",
               "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "operator_index": 4,
+              "description": "Compute 18 + 2"
             },
             {
               "type": "evaluate",
-              "operator": "-",
-              "operator_index": 3,
-              "description": "Compute 3 - 28"
+              "operator": "*",
+              "operator_index": 6,
+              "description": "Compute 2 * 3"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 2,
+              "description": "Drop brackets: (18+2*3)"
+            }
+          ],
+          "valid_actions": [
+            {
+              "type": "evaluate",
+              "operator": "*",
+              "operator_index": 6,
+              "description": "Compute 2 * 3"
+            }
+          ],
+          "chosen_action": {
+            "type": "evaluate",
+            "operator": "*",
+            "operator_index": 6,
+            "description": "Compute 2 * 3"
+          }
+        },
+        {
+          "state": "48/(18+6)",
+          "tokens": [
+            "48",
+            "/",
+            "(",
+            "18",
+            "+",
+            "6",
+            ")"
+          ],
+          "all_actions": [
+            {
+              "type": "evaluate",
+              "operator": "+",
+              "operator_index": 4,
+              "description": "Compute 18 + 6"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 2,
+              "description": "Drop brackets: (18+6)"
             }
           ],
           "valid_actions": [
             {
               "type": "evaluate",
               "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "operator_index": 4,
+              "description": "Compute 18 + 6"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
             "operator": "+",
-            "operator_index": 1,
-            "description": "Compute 4 + 3"
+            "operator_index": 4,
+            "description": "Compute 18 + 6"
           }
         },
         {
-          "state": "7-28",
+          "state": "48/24",
           "tokens": [
-            "7",
-            "-",
-            "28"
+            "48",
+            "/",
+            "24"
           ],
           "all_actions": [
             {
               "type": "evaluate",
-              "operator": "-",
+              "operator": "/",
               "operator_index": 1,
-              "description": "Compute 7 - 28"
+              "description": "Compute 48 / 24"
             }
           ],
           "valid_actions": [
             {
               "type": "evaluate",
-              "operator": "-",
+              "operator": "/",
               "operator_index": 1,
-              "description": "Compute 7 - 28"
+              "description": "Compute 48 / 24"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
-            "operator": "-",
+            "operator": "/",
             "operator_index": 1,
-            "description": "Compute 7 - 28"
+            "description": "Compute 48 / 24"
           }
         },
         {
-          "state": "-21",
+          "state": "2",
           "tokens": [
-            "-21"
+            "2"
           ],
           "is_final": true,
-          "result": -21.0
+          "result": 2.0
         }
       ],
-      "final_result": -21.0,
+      "final_result": 2.0,
       "precedence": "bodmas",
       "policies": [
         "highest_precedence_first",
@@ -2425,129 +4987,137 @@
     "bodmas_wrong_direction": {
       "steps": [
         {
-          "state": "4+3-7*4",
+          "state": "48/2*(9+3)",
           "tokens": [
-            "4",
-            "+",
-            "3",
-            "-",
-            "7",
+            "48",
+            "/",
+            "2",
             "*",
-            "4"
-          ],
-          "all_actions": [
-            {
-              "type": "evaluate",
-              "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + 3"
-            },
-            {
-              "type": "evaluate",
-              "operator": "-",
-              "operator_index": 3,
-              "description": "Compute 3 - 7"
-            },
-            {
-              "type": "evaluate",
-              "operator": "*",
-              "operator_index": 5,
-              "description": "Compute 7 * 4"
-            }
-          ],
-          "valid_actions": [
-            {
-              "type": "evaluate",
-              "operator": "*",
-              "operator_index": 5,
-              "description": "Compute 7 * 4"
-            }
-          ],
-          "chosen_action": {
-            "type": "evaluate",
-            "operator": "*",
-            "operator_index": 5,
-            "description": "Compute 7 * 4"
-          }
-        },
-        {
-          "state": "4+3-28",
-          "tokens": [
-            "4",
+            "(",
+            "9",
             "+",
             "3",
-            "-",
-            "28"
+            ")"
           ],
           "all_actions": [
             {
               "type": "evaluate",
-              "operator": "+",
+              "operator": "/",
               "operator_index": 1,
-              "description": "Compute 4 + 3"
+              "description": "Compute 48 / 2"
             },
             {
               "type": "evaluate",
-              "operator": "-",
-              "operator_index": 3,
-              "description": "Compute 3 - 28"
-            }
-          ],
-          "valid_actions": [
-            {
-              "type": "evaluate",
-              "operator": "-",
-              "operator_index": 3,
-              "description": "Compute 3 - 28"
-            }
-          ],
-          "chosen_action": {
-            "type": "evaluate",
-            "operator": "-",
-            "operator_index": 3,
-            "description": "Compute 3 - 28"
-          }
-        },
-        {
-          "state": "4+-25",
-          "tokens": [
-            "4",
-            "+",
-            "-25"
-          ],
-          "all_actions": [
-            {
-              "type": "evaluate",
               "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + -25"
+              "operator_index": 6,
+              "description": "Compute 9 + 3"
+            },
+            {
+              "type": "distribute",
+              "operator": "*",
+              "operator_index": 3,
+              "description": "Distribute (9+3) * 2"
+            },
+            {
+              "type": "drop_brackets",
+              "operator": null,
+              "operator_index": 4,
+              "description": "Drop brackets: (9+3)"
             }
           ],
           "valid_actions": [
             {
               "type": "evaluate",
               "operator": "+",
-              "operator_index": 1,
-              "description": "Compute 4 + -25"
+              "operator_index": 6,
+              "description": "Compute 9 + 3"
             }
           ],
           "chosen_action": {
             "type": "evaluate",
             "operator": "+",
-            "operator_index": 1,
-            "description": "Compute 4 + -25"
+            "operator_index": 6,
+            "description": "Compute 9 + 3"
           }
         },
         {
-          "state": "-21",
+          "state": "48/2*12",
           "tokens": [
-            "-21"
+            "48",
+            "/",
+            "2",
+            "*",
+            "12"
+          ],
+          "all_actions": [
+            {
+              "type": "evaluate",
+              "operator": "/",
+              "operator_index": 1,
+              "description": "Compute 48 / 2"
+            },
+            {
+              "type": "evaluate",
+              "operator": "*",
+              "operator_index": 3,
+              "description": "Compute 2 * 12"
+            }
+          ],
+          "valid_actions": [
+            {
+              "type": "evaluate",
+              "operator": "*",
+              "operator_index": 3,
+              "description": "Compute 2 * 12"
+            }
+          ],
+          "chosen_action": {
+            "type": "evaluate",
+            "operator": "*",
+            "operator_index": 3,
+            "description": "Compute 2 * 12"
+          }
+        },
+        {
+          "state": "48/24",
+          "tokens": [
+            "48",
+            "/",
+            "24"
+          ],
+          "all_actions": [
+            {
+              "type": "evaluate",
+              "operator": "/",
+              "operator_index": 1,
+              "description": "Compute 48 / 24"
+            }
+          ],
+          "valid_actions": [
+            {
+              "type": "evaluate",
+              "operator": "/",
+              "operator_index": 1,
+              "description": "Compute 48 / 24"
+            }
+          ],
+          "chosen_action": {
+            "type": "evaluate",
+            "operator": "/",
+            "operator_index": 1,
+            "description": "Compute 48 / 24"
+          }
+        },
+        {
+          "state": "2",
+          "tokens": [
+            "2"
           ],
           "is_final": true,
-          "result": -21.0
+          "result": 2.0
         }
       ],
-      "final_result": -21.0,
+      "final_result": 2.0,
       "precedence": "bodmas",
       "policies": [
         "highest_precedence_first",
