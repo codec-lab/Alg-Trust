@@ -370,7 +370,7 @@ class NoHigherPrecedenceRight(Policy):
 
 class LeftmostFirst(Policy):
     """
-    Among same-precedence operators, only allow the leftmost one.
+    Among same-precedence operators AT THE SAME BRACKET DEPTH, only allow the leftmost one.
     Uses the learner's precedence_map to determine "same precedence".
     """
     category = "direction"
@@ -378,8 +378,18 @@ class LeftmostFirst(Policy):
     def __init__(self):
         super().__init__(
             name="leftmost_first",
-            description="Among same-precedence operators, pick leftmost"
+            description="Among same-precedence operators at same depth, pick leftmost"
         )
+
+    def _get_bracket_depth(self, state: Tuple[str, ...], index: int) -> int:
+        """Get the bracket nesting depth at a given index."""
+        depth = 0
+        for i in range(index):
+            if state[i] in OPEN_BRACKETS:
+                depth += 1
+            elif state[i] in CLOSE_BRACKETS:
+                depth -= 1
+        return depth
 
     def evaluate(self, state: Tuple[str, ...], action: Action,
                  available_actions: List[Action],
@@ -392,25 +402,28 @@ class LeftmostFirst(Policy):
 
         prec_map = precedence_map or PRECEDENCE_BODMAS
         my_prec = prec_map.get(action.operator, 0)
+        my_depth = self._get_bracket_depth(state, action.operator_index)
 
-        # Get all evaluate actions with same precedence
-        same_prec_actions = [
+        # Get all evaluate actions with same precedence AND same bracket depth
+        same_prec_depth_actions = [
             a for a in get_evaluate_actions(available_actions)
-            if prec_map.get(a.operator, 0) == my_prec and a.operator_index is not None
+            if prec_map.get(a.operator, 0) == my_prec and
+               a.operator_index is not None and
+               self._get_bracket_depth(state, a.operator_index) == my_depth
         ]
 
-        if not same_prec_actions:
+        if not same_prec_depth_actions:
             return True
 
-        # Find leftmost (minimum index)
-        leftmost_idx = min(a.operator_index for a in same_prec_actions)
+        # Find leftmost (minimum index) among same precedence AND depth
+        leftmost_idx = min(a.operator_index for a in same_prec_depth_actions)
 
         return action.operator_index == leftmost_idx
 
 
 class RightmostFirst(Policy):
     """
-    Among same-precedence operators, only allow the rightmost one.
+    Among same-precedence operators AT THE SAME BRACKET DEPTH, only allow the rightmost one.
     Uses the learner's precedence_map to determine "same precedence".
     """
     category = "direction"
@@ -418,8 +431,18 @@ class RightmostFirst(Policy):
     def __init__(self):
         super().__init__(
             name="rightmost_first",
-            description="Among same-precedence operators, pick rightmost"
+            description="Among same-precedence operators at same depth, pick rightmost"
         )
+
+    def _get_bracket_depth(self, state: Tuple[str, ...], index: int) -> int:
+        """Get the bracket nesting depth at a given index."""
+        depth = 0
+        for i in range(index):
+            if state[i] in OPEN_BRACKETS:
+                depth += 1
+            elif state[i] in CLOSE_BRACKETS:
+                depth -= 1
+        return depth
 
     def evaluate(self, state: Tuple[str, ...], action: Action,
                  available_actions: List[Action],
@@ -432,16 +455,20 @@ class RightmostFirst(Policy):
 
         prec_map = precedence_map or PRECEDENCE_BODMAS
         my_prec = prec_map.get(action.operator, 0)
+        my_depth = self._get_bracket_depth(state, action.operator_index)
 
-        same_prec_actions = [
+        # Get all evaluate actions with same precedence AND same bracket depth
+        same_prec_depth_actions = [
             a for a in get_evaluate_actions(available_actions)
-            if prec_map.get(a.operator, 0) == my_prec and a.operator_index is not None
+            if prec_map.get(a.operator, 0) == my_prec and
+               a.operator_index is not None and
+               self._get_bracket_depth(state, a.operator_index) == my_depth
         ]
 
-        if not same_prec_actions:
+        if not same_prec_depth_actions:
             return True
 
-        rightmost_idx = max(a.operator_index for a in same_prec_actions)
+        rightmost_idx = max(a.operator_index for a in same_prec_depth_actions)
 
         return action.operator_index == rightmost_idx
 
@@ -518,26 +545,26 @@ class RightToLeftStrict(Policy):
 
 class BracketsFirst(Policy):
     """
-    Must resolve content inside brackets before operating outside.
-    If there are evaluate actions inside brackets, only those are valid.
+    Must resolve content inside INNERMOST brackets before outer brackets.
+    Only allows evaluate actions at the maximum bracket depth.
     """
     category = "bracket"
 
     def __init__(self):
         super().__init__(
             name="brackets_first",
-            description="Must evaluate inside brackets before outside operators"
+            description="Must evaluate innermost brackets first"
         )
 
-    def _is_inside_brackets(self, state: Tuple[str, ...], operator_index: int) -> bool:
-        """Check if an operator at given index is inside brackets."""
+    def _get_bracket_depth(self, state: Tuple[str, ...], operator_index: int) -> int:
+        """Get the bracket nesting depth at a given index."""
         depth = 0
         for i in range(operator_index):
             if state[i] in OPEN_BRACKETS:
                 depth += 1
             elif state[i] in CLOSE_BRACKETS:
                 depth -= 1
-        return depth > 0
+        return depth
 
     def evaluate(self, state: Tuple[str, ...], action: Action,
                  available_actions: List[Action],
@@ -545,32 +572,32 @@ class BracketsFirst(Policy):
         if action.action_type == 'drop_brackets':
             return False  # Never allow dropping brackets
 
+        # Find the maximum bracket depth among all evaluate actions
+        eval_actions = get_evaluate_actions(available_actions)
+        eval_actions_with_depth = [
+            (a, self._get_bracket_depth(state, a.operator_index))
+            for a in eval_actions
+            if a.operator_index is not None
+        ]
+
+        if not eval_actions_with_depth:
+            # No evaluate actions, allow distribute
+            return action.action_type != 'drop_brackets'
+
+        max_depth = max(depth for _, depth in eval_actions_with_depth)
+
         if action.action_type == 'distribute':
-            # Distribution is okay if no evaluate inside brackets
-            eval_actions = get_evaluate_actions(available_actions)
-            has_inside = any(
-                a.operator_index is not None and self._is_inside_brackets(state, a.operator_index)
-                for a in eval_actions
-            )
-            return not has_inside
+            # Distribution is only okay if no evaluate actions exist at any depth
+            # (i.e., brackets contain only a single value)
+            return len(eval_actions_with_depth) == 0
 
         if action.action_type == 'evaluate':
             if action.operator_index is None:
                 return True
 
-            # Check if there are any evaluate actions inside brackets
-            eval_actions = get_evaluate_actions(available_actions)
-            inside_bracket_actions = [
-                a for a in eval_actions
-                if a.operator_index is not None and self._is_inside_brackets(state, a.operator_index)
-            ]
-
-            if inside_bracket_actions:
-                # Only allow if this action is inside brackets
-                return self._is_inside_brackets(state, action.operator_index)
-
-            # No bracket content to evaluate, allow this action
-            return True
+            # Only allow if this action is at the maximum depth
+            my_depth = self._get_bracket_depth(state, action.operator_index)
+            return my_depth == max_depth
 
         return True
 
