@@ -90,6 +90,25 @@ def display_expr(s: str) -> str:
     return s.replace('/', '÷')
 
 
+def has_distributable_brackets(expression: str) -> bool:
+    """
+    Return True if the expression has a bracket group that contains +/- inside
+    AND is adjacent to an operator — i.e. distribution is actually meaningful.
+    Mirrors the check in extract_actions_from_tokens.
+    """
+    from tokenizer import tokenize
+    from graph_builder2 import find_distributable_brackets, get_bracket_content
+    try:
+        tokens = tokenize(expression)
+        for dist in find_distributable_brackets(tokens):
+            inner = get_bracket_content(tokens, dist['bracket_start'], dist['bracket_end'])
+            if any(t in ['+', '-'] for t in inner):
+                return True
+        return False
+    except Exception:
+        return False
+
+
 def get_learner_trace(expression: str, learner_name: str):
     """Get the full trace for a learner solving an expression."""
     learner = create_learner(learner_name)
@@ -442,6 +461,22 @@ def run_diagnostic_tab():
         def _trace_differs(name):
             return [s["state"] for s in all_results[name]["steps"]] != expert_states
         candidates_diff = [k for k in candidates if _trace_differs(k)]
+
+        has_dist = has_distributable_brackets(equation)
+        has_any_brackets = any(c in equation for c in '([{')
+
+        # distributor only makes sense when brackets with +/- inside exist to expand.
+        if not has_dist:
+            candidates_diff = [k for k in candidates_diff if k != 'distributor']
+
+        # multiplication_first only shows its defining behaviour when:
+        #   - there are no brackets (so * ops are directly evaluatable), OR
+        #   - there are distributable brackets (where prefer_distribute_mult fires).
+        # With brackets containing only * or /, it falls back to leftmost depth-0 op
+        # (ignoring its own precedence belief), producing a misleading trace.
+        if has_any_brackets and not has_dist:
+            candidates_diff = [k for k in candidates_diff if k != 'multiplication_first']
+
         mystery = random.choice(candidates_diff) if candidates_diff else random.choice(candidates)
         mystery_ans = all_results[mystery]["answer"]
 
@@ -560,6 +595,162 @@ def run_diagnostic_tab():
 
 
 # =============================================================================
+# LEARNER WALKTHROUGH TAB
+# =============================================================================
+
+def run_walkthrough_tab():
+    st.markdown(
+        "Choose a learner and an expression to see exactly which actions are "
+        "considered at each step, which are filtered out by the learner's policies, "
+        "and which one gets chosen."
+    )
+
+    col1, col2 = st.columns([3, 2])
+    with col1:
+        equation = st.text_input("Equation:", placeholder="e.g. 2+3*4", key="walk_eq")
+    with col2:
+        learner_name = st.selectbox(
+            "Learner:",
+            list(LEARNER_PROFILES.keys()),
+            key="walk_learner",
+            format_func=lambda x: DIAG_LEARNER_LABELS.get(x, x),
+        )
+
+    if st.button("Run", key="walk_run"):
+        for k in list(st.session_state.keys()):
+            if k.startswith("walk_res_"):
+                del st.session_state[k]
+        st.session_state.walk_res_eq      = equation.strip()
+        st.session_state.walk_res_learner = learner_name
+        st.session_state.walk_ready       = True
+        st.rerun()
+
+    if not st.session_state.get("walk_ready"):
+        return
+
+    equation     = st.session_state.walk_res_eq
+    learner_name = st.session_state.walk_res_learner
+
+    try:
+        learner = create_learner(learner_name)
+        walker  = LearnerGraphWalker(equation, learner)
+        steps   = walker.walk_deterministic()
+    except Exception as e:
+        st.error(f"Could not parse expression: {e}")
+        return
+
+    st.markdown(
+        f"**Expression:** `{display_expr(equation)}`  "
+        f"**Learner:** {DIAG_LEARNER_LABELS.get(learner_name, learner_name)}"
+    )
+    st.markdown(f"*{DIAG_LEARNER_DESCRIPTIONS.get(learner_name, '')}*")
+    st.markdown("---")
+
+    def _akey(a):
+        return (a.action_type, a.operator_index)
+
+    for i, step in enumerate(steps[:-1]):
+        st.markdown(f"**Step {i + 1}**")
+        st.code(display_expr(step["state"]), language=None)
+
+        all_actions   = step["all_actions"]
+        valid_keys    = {_akey(a) for a in step["valid_actions"]}
+        chosen        = step["chosen_action"]
+        chosen_key    = _akey(chosen) if chosen else None
+
+        if all_actions:
+            md = "| Action | Type | |\n|--------|------|---|\n"
+            for a in all_actions:
+                key      = _akey(a)
+                is_valid = key in valid_keys
+                is_chosen= key == chosen_key
+                desc     = display_expr(a.description)
+                if is_chosen:
+                    status = "✅ **chosen**"
+                elif is_valid:
+                    status = "✅ valid"
+                else:
+                    status = "❌ blocked"
+                md += f"| {desc} | `{a.action_type}` | {status} |\n"
+            st.markdown(md)
+        else:
+            st.markdown("_No actions available — learner is stuck._")
+
+        if i < len(steps) - 2:
+            st.markdown(f"↓ → `{display_expr(steps[i + 1]['state'])}`")
+        st.markdown("")
+
+    final = steps[-1]
+    st.markdown("---")
+    st.markdown(f"**Final answer: `{display_expr(final['state'])}` = {get_final_answer(steps)}**")
+
+
+# =============================================================================
+# EXPRESSION TREE TAB
+# =============================================================================
+
+def run_tree_tab():
+    st.markdown(
+        "Shows every possible evaluation path for an expression as an interactive tree. "
+        "Blue edges = evaluate, purple = distribute, orange = drop brackets."
+    )
+
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        equation = st.text_input("Equation:", placeholder="e.g. (2+3)*4", key="tree_eq")
+    with col2:
+        max_nodes = st.number_input(
+            "Max nodes:", min_value=50, max_value=2000, value=300, step=50, key="tree_max"
+        )
+
+    if st.button("Generate Tree", key="tree_run"):
+        for k in list(st.session_state.keys()):
+            if k.startswith("tree_res_"):
+                del st.session_state[k]
+        st.session_state.tree_res_eq   = equation.strip()
+        st.session_state.tree_res_max  = int(max_nodes)
+        st.session_state.tree_ready    = True
+        st.rerun()
+
+    if not st.session_state.get("tree_ready"):
+        return
+
+    equation  = st.session_state.tree_res_eq
+    max_nodes = st.session_state.tree_res_max
+
+    try:
+        from graph_builder2 import ExpressionGraph2
+        from visualizer_vue import VueTreeVisualizer
+
+        graph = ExpressionGraph2(equation, max_nodes=max_nodes)
+        viz   = VueTreeVisualizer(graph)
+
+        html_content = viz._generate_html_template(
+            tree_data     = viz._build_tree_data(),
+            expression    = graph.expression,
+            total_nodes   = len(graph.nodes),
+            total_edges   = len(graph.edges),
+            final_results = graph.get_final_results(),
+            dist_edges    = sum(1 for e in graph.edges if e.action_type == "distribute"),
+            drop_edges    = sum(1 for e in graph.edges if e.action_type == "drop_brackets"),
+            eval_edges    = sum(1 for e in graph.edges if e.action_type == "evaluate"),
+            truncated     = getattr(graph, "truncated", False),
+        )
+
+        if getattr(graph, "truncated", False):
+            st.warning(
+                f"Graph was truncated at {max_nodes} nodes. "
+                "Increase Max nodes for a fuller picture."
+            )
+
+        import streamlit.components.v1 as components
+        components.html(html_content, height=750, scrolling=True)
+
+    except Exception as e:
+        st.error(f"Could not build tree: {e}")
+
+
+# =============================================================================
 # MAIN
 # =============================================================================
 
@@ -567,17 +758,28 @@ def main():
     st.set_page_config(
         page_title="Learner Diagnosis",
         page_icon="?",
-        layout="centered",
+        layout="wide",
     )
     st.title("Learner Diagnosis")
 
-    tab1, tab2 = st.tabs(["Quiz", "Diagnose Any Equation"])
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "Quiz",
+        "Diagnose Any Equation",
+        "Learner Walkthrough",
+        "Expression Tree",
+    ])
 
     with tab1:
         run_quiz_tab()
 
     with tab2:
         run_diagnostic_tab()
+
+    with tab3:
+        run_walkthrough_tab()
+
+    with tab4:
+        run_tree_tab()
 
 
 if __name__ == "__main__":

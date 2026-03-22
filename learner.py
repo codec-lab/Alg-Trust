@@ -141,12 +141,15 @@ LEARNER_PROFILES = {
     },
 
     # Addition first (wrong precedence belief)
+    # Uses brackets_optional so that the learner's addition-first belief operates
+    # across all depths freely — brackets_first would override the belief by always
+    # forcing the deepest depth regardless of the learner's precedence map.
     "addition_first": {
         "precedence": "addition_first",
         "policies": [
             "highest_precedence_first",
             "leftmost_first",
-            "brackets_first",
+            "brackets_optional",
         ],
         "description": "Believes addition comes before multiplication (wrong!)"
     },
