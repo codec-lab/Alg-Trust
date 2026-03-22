@@ -1,8 +1,9 @@
 """
 Learner Diagnosis Quiz - Streamlit App
 
-A quiz interface to test if observers can identify learner misconceptions
-based on their work (full trace, partial trace, or just answer).
+Tab 1 – Quiz: hardcoded questions, identify learner from trace/answer.
+Tab 2 – Diagnose Any Equation: enter any expression, see mystery learner trace,
+         pick which of two described learners produced it.
 """
 
 import streamlit as st
@@ -10,8 +11,9 @@ from learner_integration import LearnerGraphWalker
 from learner import create_learner, LEARNER_PROFILES
 import random
 
+
 # =============================================================================
-# LEARNER DESCRIPTIONS (for display)
+# QUIZ TAB — LEARNER LABELS
 # =============================================================================
 
 LEARNER_DESCRIPTIONS = {
@@ -23,7 +25,6 @@ LEARNER_DESCRIPTIONS = {
     'right_to_left': 'Right to Left - Ignores precedence, evaluates right to left',
 }
 
-# Short names for options
 LEARNER_SHORT_NAMES = {
     'expert': 'Expert (BODMAS)',
     'addition_first': 'Addition First',
@@ -35,49 +36,100 @@ LEARNER_SHORT_NAMES = {
 
 
 # =============================================================================
-# HELPER FUNCTIONS
+# DIAGNOSTIC TAB — PLAIN ENGLISH LABELS
 # =============================================================================
+
+# Never pick these as the mystery learner (they get BODMAS right)
+DIAG_EXCLUDE = {'expert', 'bodmas_correct'}
+
+# Shown as the binary choice options (what the person knows / gets wrong)
+DIAG_LEARNER_DESCRIPTIONS = {
+    'addition_first':
+        "Does addition and subtraction before multiplication and division",
+    'multiplication_first':
+        "Treats multiplication as the highest-priority operation; expands brackets with ×",
+    'left_to_right_only':
+        "Ignores operator precedence — evaluates everything strictly left to right",
+    'right_to_left':
+        "Ignores operator precedence — evaluates everything strictly right to left",
+    'novice':
+        "Has no consistent rule — picks operations in no predictable order",
+    'bracket_ignorer':
+        "Drops brackets entirely, then evaluates left to right",
+    'distributor':
+        "Knows BODMAS but prefers to expand (distribute) brackets instead of evaluating inside them",
+    'bodmas_wrong_direction':
+        "Knows multiplication comes before addition, but applies operations right to left",
+    'expert':
+        "Correctly follows BODMAS: brackets first, then ×÷, then +−, left to right",
+    'bodmas_correct':
+        "Follows BODMAS (×÷ before +−), evaluates left to right",
+}
+
+# Short labels (shown in summary table)
+DIAG_LEARNER_LABELS = {
+    'addition_first':         'Addition Before ×',
+    'multiplication_first':   '× Highest Priority',
+    'left_to_right_only':     'Strictly Left→Right',
+    'right_to_left':          'Strictly Right→Left',
+    'novice':                 'No Consistent Strategy',
+    'bracket_ignorer':        'Ignores Brackets',
+    'distributor':            'Prefers Distributing',
+    'bodmas_wrong_direction':  'BODMAS Right→Left',
+    'expert':                 'Expert (BODMAS)',
+    'bodmas_correct':         'BODMAS Correct',
+}
+
+
+# =============================================================================
+# SHARED HELPERS
+# =============================================================================
+
+def display_expr(s: str) -> str:
+    """Replace / with ÷ for display."""
+    return s.replace('/', '÷')
+
 
 def get_learner_trace(expression: str, learner_name: str):
     """Get the full trace for a learner solving an expression."""
     learner = create_learner(learner_name)
     walker = LearnerGraphWalker(expression, learner)
-    steps = walker.walk_deterministic()
-    return steps
+    return walker.walk_deterministic()
 
 
 def format_trace(steps, show_all=True, show_first_n=None, show_last_n=None):
-    """Format trace steps for display."""
+    """Format trace steps for display as a student would write their work."""
     if not steps:
         return "No steps available"
 
-    lines = []
     total_steps = len(steps)
 
-    for i, step in enumerate(steps):
-        show_step = False
+    if show_all:
+        visible = list(range(total_steps))
+        omit_middle = False
+    elif show_first_n is not None:
+        visible = list(range(min(show_first_n, total_steps)))
+        omit_middle = len(visible) < total_steps
+    elif show_last_n is not None:
+        start = max(0, total_steps - show_last_n)
+        visible = list(range(start, total_steps))
+        omit_middle = start > 0
+    else:
+        visible = list(range(total_steps))
+        omit_middle = False
 
-        if show_all:
-            show_step = True
-        elif show_first_n is not None and i < show_first_n:
-            show_step = True
-        elif show_last_n is not None and i >= total_steps - show_last_n:
-            show_step = True
+    lines = []
 
-        if show_step:
-            state = step.get('state', '')
-            if step.get('is_final'):
-                lines.append(f"Step {i+1}: {state} (FINAL)")
-            elif step.get('chosen_action'):
-                action = step['chosen_action']
-                lines.append(f"Step {i+1}: {state}")
-                lines.append(f"        -> {action.description}")
-            else:
-                lines.append(f"Step {i+1}: {state}")
-        elif not show_step and (i == show_first_n if show_first_n else False):
-            lines.append("        ...")
-            lines.append("        (steps hidden)")
-            lines.append("        ...")
+    if show_last_n is not None and omit_middle:
+        lines.append("  ...")
+
+    for idx in visible:
+        state = steps[idx].get('state', '')
+        prefix = "  " if (idx == 0 and show_last_n is None) else "= "
+        lines.append(f"{prefix}{state}")
+
+    if show_first_n is not None and omit_middle:
+        lines.append("  ...")
 
     return "\n".join(lines)
 
@@ -86,7 +138,6 @@ def get_final_answer(steps):
     """Get final answer from steps."""
     if steps and 'result' in steps[-1]:
         result = steps[-1]['result']
-        # Format nicely
         if result == int(result):
             return str(int(result))
         else:
@@ -95,135 +146,100 @@ def get_final_answer(steps):
 
 
 # =============================================================================
-# QUIZ QUESTIONS (HARDCODED)
+# DIAGNOSTIC TAB HELPERS
 # =============================================================================
 
-# Question format types
-FORMAT_FULL_TRACE = "full_trace"
-FORMAT_ANSWER_ONLY = "answer_only"
-FORMAT_PARTIAL_START = "partial_start"  # Show first 2 steps
-FORMAT_PARTIAL_END = "partial_end"      # Show last 2 steps
+def _is_step_wrong(tokens, mystery_action, expert_walker) -> bool:
+    """
+    Returns True if mystery_action differs from what expert would choose
+    at this token state (i.e. this step deviates from BODMAS).
+    """
+    try:
+        valid, _ = expert_walker.get_valid_actions_for_state(list(tokens))
+        if not valid or not mystery_action:
+            return True
+        expert_action = valid[0]
+        return not (
+            mystery_action.action_type == expert_action.action_type
+            and mystery_action.operator == expert_action.operator
+            and mystery_action.operator_index == expert_action.operator_index
+        )
+    except Exception:
+        return True
+
+
+def _build_trace_rows(mystery_steps, expert_walker):
+    """
+    Returns a list of tuples:
+        (current_state: str, action_desc: str | None, next_state: str, is_wrong: bool)
+    action_desc is None for wrong steps (should be blacked out).
+    """
+    rows = []
+    for i, step in enumerate(mystery_steps[:-1]):
+        tokens = step.get('tokens', [])
+        chosen = step.get('chosen_action')
+        current_state = step['state']
+        next_state = mystery_steps[i + 1]['state']
+        wrong = _is_step_wrong(tokens, chosen, expert_walker)
+        action_desc = None if wrong else (chosen.description if chosen else None)
+        rows.append((current_state, action_desc, next_state, wrong))
+    return rows
+
+
+# =============================================================================
+# QUIZ TAB — QUESTIONS
+# =============================================================================
+
+FORMAT_FULL_TRACE    = "full_trace"
+FORMAT_ANSWER_ONLY   = "answer_only"
+FORMAT_PARTIAL_START = "partial_start"
+FORMAT_PARTIAL_END   = "partial_end"
+
 
 def generate_questions():
-    """Generate the 15 quiz questions."""
-    questions = [
-        # FORMAT: (expression, correct_learner, question_format, options)
-        # Options are learners that give DIFFERENT answers
-
-        # Full trace questions (5)
-        {
-            'expression': '2+3*4',
-            'correct_learner': 'addition_first',
-            'format': FORMAT_FULL_TRACE,
-            'options': ['expert', 'addition_first', 'right_to_left'],
-        },
-        {
-            'expression': '2*3+4*5',
-            'correct_learner': 'left_to_right_only',
-            'format': FORMAT_FULL_TRACE,
-            'options': ['expert', 'addition_first', 'left_to_right_only', 'right_to_left'],
-        },
-        {
-            'expression': '10-2-3',
-            'correct_learner': 'right_to_left',
-            'format': FORMAT_FULL_TRACE,
-            'options': ['expert', 'right_to_left'],
-        },
-        {
-            'expression': '5+2*(3+1)',
-            'correct_learner': 'bracket_ignorer',
-            'format': FORMAT_FULL_TRACE,
-            'options': ['expert', 'addition_first', 'bracket_ignorer'],
-        },
-        {
-            'expression': '12/3+4*2',
-            'correct_learner': 'expert',
-            'format': FORMAT_FULL_TRACE,
-            'options': ['expert', 'addition_first', 'left_to_right_only', 'right_to_left'],
-        },
-
-        # Answer only questions (5)
-        {
-            'expression': '12-3+4',
-            'correct_learner': 'right_to_left',
-            'format': FORMAT_ANSWER_ONLY,
-            'options': ['expert', 'right_to_left'],
-        },
-        {
-            'expression': '20-4*3+2',
-            'correct_learner': 'addition_first',
-            'format': FORMAT_ANSWER_ONLY,
-            'options': ['expert', 'addition_first', 'left_to_right_only', 'right_to_left'],
-        },
-        {
-            'expression': '8/4*2',
-            'correct_learner': 'multiplication_first',
-            'format': FORMAT_ANSWER_ONLY,
-            'options': ['expert', 'multiplication_first'],
-        },
-        {
-            'expression': '4*(2+3)',
-            'correct_learner': 'bracket_ignorer',
-            'format': FORMAT_ANSWER_ONLY,
-            'options': ['expert', 'bracket_ignorer'],
-        },
-        {
-            'expression': '15-3*2+4',
-            'correct_learner': 'left_to_right_only',
-            'format': FORMAT_ANSWER_ONLY,
-            'options': ['expert', 'addition_first', 'left_to_right_only', 'right_to_left'],
-        },
-
-        # Partial trace - first steps shown (3)
-        {
-            'expression': '10+2*3-4',
-            'correct_learner': 'expert',
-            'format': FORMAT_PARTIAL_START,
-            'options': ['expert', 'addition_first', 'left_to_right_only'],
-        },
-        {
-            'expression': '3+6/2*4',
-            'correct_learner': 'multiplication_first',
-            'format': FORMAT_PARTIAL_START,
-            'options': ['expert', 'addition_first', 'multiplication_first'],
-        },
-        {
-            'expression': '2*(3+4)-5',
-            'correct_learner': 'addition_first',
-            'format': FORMAT_PARTIAL_START,
-            'options': ['expert', 'addition_first', 'bracket_ignorer'],
-        },
-
-        # Partial trace - last steps shown (2)
-        {
-            'expression': '10/2/5',
-            'correct_learner': 'right_to_left',
-            'format': FORMAT_PARTIAL_END,
-            'options': ['expert', 'right_to_left'],
-        },
-        {
-            'expression': '20/4/2',
-            'correct_learner': 'right_to_left',
-            'format': FORMAT_PARTIAL_END,
-            'options': ['expert', 'right_to_left'],
-        },
+    return [
+        # Full trace (5)
+        {'expression': '2+3*4',      'correct_learner': 'addition_first',    'format': FORMAT_FULL_TRACE,
+         'options': ['expert', 'addition_first', 'right_to_left']},
+        {'expression': '2*3+4*5',    'correct_learner': 'left_to_right_only','format': FORMAT_FULL_TRACE,
+         'options': ['expert', 'addition_first', 'left_to_right_only', 'right_to_left']},
+        {'expression': '10-2-3',     'correct_learner': 'right_to_left',     'format': FORMAT_FULL_TRACE,
+         'options': ['expert', 'right_to_left']},
+        {'expression': '5+2*(3+1)',  'correct_learner': 'bracket_ignorer',   'format': FORMAT_FULL_TRACE,
+         'options': ['expert', 'addition_first', 'bracket_ignorer']},
+        {'expression': '12/3+4*2',   'correct_learner': 'expert',            'format': FORMAT_FULL_TRACE,
+         'options': ['expert', 'addition_first', 'left_to_right_only', 'right_to_left']},
+        # Answer only (5)
+        {'expression': '12-3+4',     'correct_learner': 'right_to_left',     'format': FORMAT_ANSWER_ONLY,
+         'options': ['expert', 'right_to_left']},
+        {'expression': '20-4*3+2',   'correct_learner': 'addition_first',    'format': FORMAT_ANSWER_ONLY,
+         'options': ['expert', 'addition_first', 'left_to_right_only', 'right_to_left']},
+        {'expression': '8/4*2',      'correct_learner': 'multiplication_first','format': FORMAT_ANSWER_ONLY,
+         'options': ['expert', 'multiplication_first']},
+        {'expression': '4*(2+3)',     'correct_learner': 'bracket_ignorer',   'format': FORMAT_ANSWER_ONLY,
+         'options': ['expert', 'bracket_ignorer']},
+        {'expression': '15-3*2+4',   'correct_learner': 'left_to_right_only','format': FORMAT_ANSWER_ONLY,
+         'options': ['expert', 'addition_first', 'left_to_right_only', 'right_to_left']},
+        # Partial start (3)
+        {'expression': '10+2*3-4',   'correct_learner': 'expert',            'format': FORMAT_PARTIAL_START,
+         'options': ['expert', 'addition_first', 'left_to_right_only']},
+        {'expression': '3+6/2*4',    'correct_learner': 'multiplication_first','format': FORMAT_PARTIAL_START,
+         'options': ['expert', 'addition_first', 'multiplication_first']},
+        {'expression': '2*(3+4)-5',  'correct_learner': 'addition_first',    'format': FORMAT_PARTIAL_START,
+         'options': ['expert', 'addition_first', 'bracket_ignorer']},
+        # Partial end (2)
+        {'expression': '10/2/5',     'correct_learner': 'right_to_left',     'format': FORMAT_PARTIAL_END,
+         'options': ['expert', 'right_to_left']},
+        {'expression': '20/4/2',     'correct_learner': 'right_to_left',     'format': FORMAT_PARTIAL_END,
+         'options': ['expert', 'right_to_left']},
     ]
 
-    return questions
-
 
 # =============================================================================
-# STREAMLIT APP
+# QUIZ TAB RENDERER
 # =============================================================================
 
-def main():
-    st.set_page_config(
-        page_title="Learner Diagnosis Quiz",
-        page_icon="?",
-        layout="centered"
-    )
-
-    st.title("Learner Diagnosis Quiz")
+def run_quiz_tab():
     st.markdown("**Goal:** Identify which type of learner solved the expression based on their work.")
 
     with st.expander("Click to see learner profiles", expanded=False):
@@ -240,10 +256,9 @@ def main():
 
     st.markdown("---")
 
-    # Initialize session state
     if 'questions' not in st.session_state:
         questions = generate_questions()
-        random.shuffle(questions)  # Randomize order
+        random.shuffle(questions)
         st.session_state.questions = questions
         st.session_state.current_q = 0
         st.session_state.revealed = False
@@ -255,50 +270,56 @@ def main():
     current_q = st.session_state.current_q
     total_q = len(questions)
 
-    # Progress bar
-    st.progress((current_q) / total_q)
+    # Show final results screen
+    if current_q >= total_q:
+        st.balloons()
+        st.markdown("## Quiz Complete!")
+        st.markdown(f"### Your Score: {st.session_state.score} / {total_q}")
+        percentage = (st.session_state.score / total_q) * 100
+        if percentage >= 80:
+            st.success("Excellent! You have a great understanding of learner misconceptions!")
+        elif percentage >= 60:
+            st.info("Good job! You can identify most learner types.")
+        else:
+            st.warning("Keep practicing! It takes time to recognise patterns in learner behaviour.")
+        if st.button("Restart Quiz"):
+            for key in list(st.session_state.keys()):
+                del st.session_state[key]
+            st.rerun()
+        return
+
+    st.progress(current_q / total_q)
     st.markdown(f"**Question {current_q + 1} of {total_q}**")
 
-    # Get current question
     q = questions[current_q]
-    expression = q['expression']
+    expression    = q['expression']
     correct_learner = q['correct_learner']
-    q_format = q['format']
-    options = q['options']
+    q_format      = q['format']
+    options       = q['options']
 
-    # Get trace for the correct learner
     steps = get_learner_trace(expression, correct_learner)
     final_answer = get_final_answer(steps)
 
-    # Display the expression
-    st.markdown(f"### Expression: `{expression}`")
-
-    # Display format-specific content
+    st.markdown(f"### Expression: `{display_expr(expression)}`")
     st.markdown("---")
 
     if q_format == FORMAT_FULL_TRACE:
         st.markdown("**Full trace of student's work:**")
-        st.code(format_trace(steps, show_all=True), language=None)
-
+        st.code(display_expr(format_trace(steps, show_all=True)), language=None)
     elif q_format == FORMAT_ANSWER_ONLY:
         st.markdown("**Student's final answer:**")
-        st.markdown(f"## {final_answer}")
-
+        st.markdown(f"## {display_expr(final_answer)}")
     elif q_format == FORMAT_PARTIAL_START:
         st.markdown("**First steps of student's work:**")
-        st.code(format_trace(steps, show_all=False, show_first_n=2), language=None)
-        st.markdown(f"**Final answer:** {final_answer}")
-
+        st.code(display_expr(format_trace(steps, show_all=False, show_first_n=2)), language=None)
+        st.markdown(f"**Final answer:** {display_expr(final_answer)}")
     elif q_format == FORMAT_PARTIAL_END:
         st.markdown("**Last steps of student's work:**")
-        st.code(format_trace(steps, show_all=False, show_last_n=2), language=None)
+        st.code(display_expr(format_trace(steps, show_all=False, show_last_n=2)), language=None)
 
     st.markdown("---")
-
-    # Multiple choice options
     st.markdown("**Which learner type is this?**")
 
-    # Shuffle options for display (but keep track)
     if f'shuffled_options_{current_q}' not in st.session_state:
         shuffled = options.copy()
         random.shuffle(shuffled)
@@ -306,19 +327,16 @@ def main():
 
     shuffled_options = st.session_state[f'shuffled_options_{current_q}']
 
-    # Radio buttons for selection
     selected = st.radio(
         "Select your answer:",
         shuffled_options,
         format_func=lambda x: LEARNER_SHORT_NAMES.get(x, x),
         key=f"radio_{current_q}",
-        disabled=st.session_state.revealed
+        disabled=st.session_state.revealed,
     )
     st.session_state.selected_answer = selected
 
-    # Buttons row
     col1, col2, col3 = st.columns([1, 1, 1])
-
     with col1:
         if st.button("Reveal Answer", disabled=st.session_state.revealed):
             st.session_state.revealed = True
@@ -326,7 +344,6 @@ def main():
                 st.session_state.score += 1
             st.session_state.answered[current_q] = True
             st.rerun()
-
     with col3:
         if current_q < total_q - 1:
             if st.button("Next Question ->"):
@@ -339,22 +356,17 @@ def main():
                 st.session_state.current_q += 1
                 st.rerun()
 
-    # Show result if revealed
     if st.session_state.revealed:
         st.markdown("---")
-
         if selected == correct_learner:
             st.success(f"Correct! This is the **{LEARNER_SHORT_NAMES[correct_learner]}** learner.")
         else:
             st.error(f"Incorrect. This is the **{LEARNER_SHORT_NAMES[correct_learner]}** learner.")
-
-        # Show full explanation
         with st.expander("See full trace and explanation", expanded=True):
             st.markdown(f"**Learner:** {LEARNER_DESCRIPTIONS[correct_learner]}")
             st.markdown("**Complete trace:**")
-            st.code(format_trace(steps, show_all=True), language=None)
+            st.code(display_expr(format_trace(steps, show_all=True)), language=None)
 
-    # Navigation at bottom
     st.markdown("---")
     cols = st.columns(total_q)
     for i, col in enumerate(cols):
@@ -370,25 +382,202 @@ def main():
                     st.session_state.revealed = st.session_state.answered[i]
                     st.rerun()
 
-    # Show final results
-    if current_q >= total_q:
-        st.balloons()
-        st.markdown("---")
-        st.markdown("## Quiz Complete!")
-        st.markdown(f"### Your Score: {st.session_state.score} / {total_q}")
 
-        percentage = (st.session_state.score / total_q) * 100
-        if percentage >= 80:
-            st.success("Excellent! You have a great understanding of learner misconceptions!")
-        elif percentage >= 60:
-            st.info("Good job! You can identify most learner types.")
-        else:
-            st.warning("Keep practicing! It takes time to recognize patterns in learner behavior.")
+# =============================================================================
+# DIAGNOSTIC TAB RENDERER
+# =============================================================================
 
-        if st.button("Restart Quiz"):
-            for key in list(st.session_state.keys()):
-                del st.session_state[key]
+def run_diagnostic_tab():
+    st.markdown("Enter any arithmetic expression. A randomly chosen learner's trace will be shown — figure out which of the two described learners produced it.")
+
+    equation_input = st.text_input(
+        "Equation:",
+        placeholder="e.g.  3 + 4 * 2   or   5 + 2*(3+1)",
+        key="diag_eq_input",
+    )
+
+    if st.button("Run", key="diag_run_btn"):
+        if not equation_input.strip():
+            st.warning("Please enter an equation first.")
+            return
+        # Reset diagnostic state whenever a new equation is submitted
+        for k in list(st.session_state.keys()):
+            if k.startswith("diag_"):
+                del st.session_state[k]
+        st.session_state.diag_eq = equation_input.strip()
+        st.session_state.diag_ready = True
+        st.rerun()
+
+    if not st.session_state.get("diag_ready"):
+        return
+
+    equation = st.session_state.diag_eq
+    st.markdown(f"**Expression:** `{display_expr(equation)}`")
+    st.markdown("---")
+
+    # ── Run all learners once, then cache ──────────────────────────────────
+    if "diag_results" not in st.session_state:
+        all_results = {}
+        for name in LEARNER_PROFILES:
+            try:
+                steps = get_learner_trace(equation, name)
+                all_results[name] = {"steps": steps, "answer": get_final_answer(steps)}
+            except Exception:
+                all_results[name] = {"steps": [], "answer": "Error"}
+
+        # Pick mystery learner (exclude expert/bodmas_correct, exclude errors)
+        candidates = [
+            k for k in LEARNER_PROFILES
+            if k not in DIAG_EXCLUDE and all_results[k]["answer"] != "Error"
+        ]
+        if not candidates:
+            st.error("Could not generate valid traces for this equation. Try a different one.")
+            return
+
+        # Prefer a learner whose trace (sequence of states) differs from expert's.
+        # A different answer guarantees a different trace, but two learners can also
+        # take different paths and still land on the same answer — both are fine.
+        # Only fall back to same-trace learners if no alternative exists.
+        expert_states = [s["state"] for s in all_results["expert"]["steps"]]
+        def _trace_differs(name):
+            return [s["state"] for s in all_results[name]["steps"]] != expert_states
+        candidates_diff = [k for k in candidates if _trace_differs(k)]
+        mystery = random.choice(candidates_diff) if candidates_diff else random.choice(candidates)
+        mystery_ans = all_results[mystery]["answer"]
+
+        # Foil: prefer a different final answer
+        foils_diff = [k for k in candidates if k != mystery and all_results[k]["answer"] != mystery_ans]
+        foils_same = [k for k in candidates if k != mystery]
+        foil = random.choice(foils_diff) if foils_diff else random.choice(foils_same)
+
+        options = [mystery, foil]
+        random.shuffle(options)
+
+        st.session_state.diag_results = all_results
+        st.session_state.diag_mystery = mystery
+        st.session_state.diag_foil = foil
+        st.session_state.diag_options = options
+
+    results = st.session_state.diag_results
+    mystery = st.session_state.diag_mystery
+    foil    = st.session_state.diag_foil
+    options = st.session_state.diag_options
+    mystery_steps = results[mystery]["steps"]
+
+    # ── Answer summary table ───────────────────────────────────────────────
+    st.markdown("#### All Learner Answers")
+    answer_map: dict = {}
+    for name, data in results.items():
+        ans = data["answer"]
+        answer_map.setdefault(ans, []).append(name)
+
+    md = "| Answer | Learners |\n|--------|----------|\n"
+    for ans in sorted(answer_map.keys()):
+        label_list = ", ".join(DIAG_LEARNER_LABELS.get(n, n) for n in answer_map[ans])
+        md += f"| **{ans}** | {label_list} |\n"
+    st.markdown(md)
+
+    st.markdown("---")
+
+    # ── Mystery trace with wrong steps blacked out ─────────────────────────
+    st.markdown("#### Mystery Learner's Trace")
+    st.markdown(
+        "Steps that differ from correct BODMAS are blacked out — "
+        "the intermediate result is hidden and the next visible state appears directly."
+    )
+
+    expert_learner = create_learner("expert")
+    expert_walker  = LearnerGraphWalker(equation, expert_learner)
+    trace_rows     = _build_trace_rows(mystery_steps, expert_walker)
+
+    if trace_rows:
+        lines = [display_expr(trace_rows[0][0])]  # always show starting state
+        for curr_state, action_desc, next_state, wrong in trace_rows:
+            lines.append("  ↓")
+            if wrong:
+                lines.append("  ████████████████████")
+            else:
+                lines.append(display_expr(next_state))
+        # If the last step was blacked out, still show the final answer with an arrow
+        if trace_rows and trace_rows[-1][3]:
+            lines.append("  ↓")
+            lines.append(display_expr(mystery_steps[-1]["state"]))
+        st.code("\n".join(lines), language=None)
+    else:
+        # Already a single token — nothing to trace
+        if mystery_steps:
+            st.code(display_expr(mystery_steps[0]["state"]), language=None)
+
+    st.markdown("---")
+
+    # ── Binary choice ──────────────────────────────────────────────────────
+    st.markdown("#### Who is this learner?")
+
+    if not st.session_state.get("diag_answered"):
+        selected = st.radio(
+            "Select your answer:",
+            options,
+            format_func=lambda x: DIAG_LEARNER_DESCRIPTIONS.get(x, x),
+            key="diag_radio",
+        )
+        if st.button("Submit Answer", key="diag_submit"):
+            st.session_state.diag_selected = selected
+            st.session_state.diag_answered = True
             st.rerun()
+
+    else:
+        selected = st.session_state.diag_selected
+        st.radio(
+            "Select your answer:",
+            options,
+            format_func=lambda x: DIAG_LEARNER_DESCRIPTIONS.get(x, x),
+            index=options.index(selected),
+            key="diag_radio_dis",
+            disabled=True,
+        )
+
+        st.markdown("---")
+        if selected == mystery:
+            st.success(f"Correct! The mystery learner: **{DIAG_LEARNER_LABELS[mystery]}**")
+        else:
+            st.error(f"Incorrect. The mystery learner was: **{DIAG_LEARNER_LABELS[mystery]}**")
+
+        with st.expander("Full explanation", expanded=True):
+            st.markdown(f"**Mystery learner:** {DIAG_LEARNER_DESCRIPTIONS[mystery]}")
+            st.markdown(f"**Foil learner:** {DIAG_LEARNER_DESCRIPTIONS[foil]}")
+            st.markdown(f"**Mystery learner's answer:** {results[mystery]['answer']}")
+            st.markdown(f"**Foil learner's answer:** {results[foil]['answer']}")
+
+            st.markdown("**Full trace (no redaction):**")
+            if mystery_steps:
+                full_lines = [display_expr(mystery_steps[0]["state"])]
+                for i, step in enumerate(mystery_steps[:-1]):
+                    chosen = step.get("chosen_action")
+                    next_state = mystery_steps[i + 1]["state"]
+                    full_lines.append(f"  ↓  {chosen.description if chosen else '?'}")
+                    full_lines.append(display_expr(next_state))
+                st.code("\n".join(full_lines), language=None)
+
+
+# =============================================================================
+# MAIN
+# =============================================================================
+
+def main():
+    st.set_page_config(
+        page_title="Learner Diagnosis",
+        page_icon="?",
+        layout="centered",
+    )
+    st.title("Learner Diagnosis")
+
+    tab1, tab2 = st.tabs(["Quiz", "Diagnose Any Equation"])
+
+    with tab1:
+        run_quiz_tab()
+
+    with tab2:
+        run_diagnostic_tab()
 
 
 if __name__ == "__main__":
