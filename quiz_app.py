@@ -168,6 +168,120 @@ def get_final_answer(steps):
 # DIAGNOSTIC TAB HELPERS
 # =============================================================================
 
+def _bracket_depth_at(tokens, index):
+    """Bracket nesting depth at the given token index."""
+    depth = 0
+    for i in range(min(index, len(tokens))):
+        if tokens[i] in ('(', '[', '{'):
+            depth += 1
+        elif tokens[i] in (')', ']', '}'):
+            depth -= 1
+    return max(depth, 0)
+
+
+def describe_trace_divergences(steps, expert_walker):
+    """
+    Compare each chosen action in `steps` against what the expert would do at
+    that same state. Returns a plain-English string describing only the
+    divergences that *actually occurred* in this trace — nothing generic.
+    """
+    BODMAS_PREC = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 3}
+
+    # ordered dict so first-seen example is kept; key = category
+    found = {}
+
+    def _short(action):
+        """Strip 'Compute '/'Distribute ' prefix and replace / with ÷."""
+        d = action.description.replace('/', '÷')
+        for prefix in ('Compute ', 'Distribute ', 'Drop brackets: '):
+            if d.startswith(prefix):
+                d = d[len(prefix):]
+        return d
+
+    for step in steps[:-1]:
+        tokens = step['tokens']
+        l = step.get('chosen_action')
+        if not l:
+            continue
+
+        try:
+            valid, _ = expert_walker.get_valid_actions_for_state(list(tokens))
+            if not valid:
+                continue
+            e = valid[0]
+        except Exception:
+            continue
+
+        # No divergence at this step
+        if l.action_type == e.action_type and l.operator_index == e.operator_index:
+            continue
+
+        l_str = _short(l)
+        e_str = _short(e)
+        l_idx = l.operator_index if l.operator_index is not None else 0
+        e_idx = e.operator_index if e.operator_index is not None else 0
+        l_depth = _bracket_depth_at(tokens, l_idx)
+        e_depth = _bracket_depth_at(tokens, e_idx)
+
+        if l.action_type == 'drop_brackets' and 'drop_brackets' not in found:
+            found['drop_brackets'] = (
+                f"dropped brackets instead of evaluating inside them "
+                f"(dropped `{l_str}`)"
+            )
+
+        elif l.action_type == 'distribute' and e.action_type != 'distribute' \
+                and 'distribute' not in found:
+            found['distribute'] = (
+                f"expanded brackets by distributing instead of evaluating inside "
+                f"(distributed `{l_str}` instead of `{e_str}`)"
+            )
+
+        elif l_depth < e_depth and 'skip_brackets' not in found:
+            found['skip_brackets'] = (
+                f"skipped bracket contents and evaluated outside first "
+                f"(chose `{l_str}` instead of `{e_str}`)"
+            )
+
+        elif l_depth == e_depth \
+                and l.action_type == 'evaluate' and e.action_type == 'evaluate':
+            l_prec = BODMAS_PREC.get(l.operator, 0)
+            e_prec = BODMAS_PREC.get(e.operator, 0)
+
+            if l_prec < e_prec:
+                if l.operator in ('+', '-') and e.operator in ('*', '/') \
+                        and 'add_before_mult' not in found:
+                    found['add_before_mult'] = (
+                        f"did addition/subtraction before multiplication/division "
+                        f"(computed `{l_str}` before `{e_str}`)"
+                    )
+                elif 'wrong_prec' not in found:
+                    found['wrong_prec'] = (
+                        f"applied operators in the wrong priority order "
+                        f"(chose `{l_str}` instead of `{e_str}`)"
+                    )
+
+            elif l_prec == e_prec and l_idx != e_idx:
+                if l_idx > e_idx and 'right_to_left' not in found:
+                    found['right_to_left'] = (
+                        f"evaluated right to left instead of left to right "
+                        f"(computed `{l_str}` before `{e_str}`)"
+                    )
+                elif l_idx < e_idx and 'unexpected_order' not in found:
+                    found['unexpected_order'] = (
+                        f"chose an earlier operation unexpectedly "
+                        f"(chose `{l_str}` instead of `{e_str}`)"
+                    )
+
+    if not found:
+        return "follows the same steps as BODMAS on this expression"
+
+    parts = list(found.values())
+    sentence = parts[0].capitalize()
+    for p in parts[1:]:
+        sentence += f"; also {p}"
+    return sentence
+
+
 def _is_step_wrong(tokens, mystery_action, expert_walker) -> bool:
     """
     Returns True if mystery_action differs from what expert would choose
@@ -477,6 +591,12 @@ def run_diagnostic_tab():
         if has_any_brackets and not has_dist:
             candidates_diff = [k for k in candidates_diff if k != 'multiplication_first']
 
+        # bracket_ignorer only shows its defining behaviour when brackets exist.
+        # Without brackets it is identical to left_to_right_only — the "ignores
+        # brackets" characteristic is completely invisible.
+        if not has_any_brackets:
+            candidates_diff = [k for k in candidates_diff if k != 'bracket_ignorer']
+
         mystery = random.choice(candidates_diff) if candidates_diff else random.choice(candidates)
         mystery_ans = all_results[mystery]["answer"]
 
@@ -523,7 +643,16 @@ def run_diagnostic_tab():
 
     expert_learner = create_learner("expert")
     expert_walker  = LearnerGraphWalker(equation, expert_learner)
-    trace_rows     = _build_trace_rows(mystery_steps, expert_walker)
+
+    # Compute expression-specific descriptions once and cache them
+    if "diag_desc_map" not in st.session_state:
+        st.session_state.diag_desc_map = {
+            mystery: describe_trace_divergences(results[mystery]["steps"], expert_walker),
+            foil:    describe_trace_divergences(results[foil]["steps"],    expert_walker),
+        }
+    desc_map = st.session_state.diag_desc_map
+
+    trace_rows = _build_trace_rows(mystery_steps, expert_walker)
 
     if trace_rows:
         lines = [display_expr(trace_rows[0][0])]  # always show starting state
@@ -552,7 +681,7 @@ def run_diagnostic_tab():
         selected = st.radio(
             "Select your answer:",
             options,
-            format_func=lambda x: DIAG_LEARNER_DESCRIPTIONS.get(x, x),
+            format_func=lambda x: desc_map.get(x, x),
             key="diag_radio",
         )
         if st.button("Submit Answer", key="diag_submit"):
@@ -565,7 +694,7 @@ def run_diagnostic_tab():
         st.radio(
             "Select your answer:",
             options,
-            format_func=lambda x: DIAG_LEARNER_DESCRIPTIONS.get(x, x),
+            format_func=lambda x: desc_map.get(x, x),
             index=options.index(selected),
             key="diag_radio_dis",
             disabled=True,
@@ -578,8 +707,8 @@ def run_diagnostic_tab():
             st.error(f"Incorrect. The mystery learner was: **{DIAG_LEARNER_LABELS[mystery]}**")
 
         with st.expander("Full explanation", expanded=True):
-            st.markdown(f"**Mystery learner:** {DIAG_LEARNER_DESCRIPTIONS[mystery]}")
-            st.markdown(f"**Foil learner:** {DIAG_LEARNER_DESCRIPTIONS[foil]}")
+            st.markdown(f"**What the mystery learner did on this expression:** {desc_map[mystery]}")
+            st.markdown(f"**What the foil learner does on this expression:** {desc_map[foil]}")
             st.markdown(f"**Mystery learner's answer:** {results[mystery]['answer']}")
             st.markdown(f"**Foil learner's answer:** {results[foil]['answer']}")
 
