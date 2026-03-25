@@ -109,11 +109,194 @@ def has_distributable_brackets(expression: str) -> bool:
         return False
 
 
+def generate_random_equation():
+    """
+    Generate a random arithmetic expression that is guaranteed to:
+    - Have at least one * and one +/- (so a precedence conflict exists)
+    - Parse cleanly (no division, so no messy decimals)
+    - Produce a different trace for at least one non-expert learner
+    About half the time the expression will include a bracketed sub-expression.
+    Returns the expression string, or a safe fallback.
+    """
+    from tokenizer import tokenize
+
+    for _ in range(60):
+        n    = random.randint(3, 5)
+        nums = [str(random.randint(1, 9)) for _ in range(n)]
+        ops  = [random.choice(['+', '-', '*']) for _ in range(n - 1)]
+        if '*' not in ops:
+            ops[random.randrange(len(ops))] = '*'
+        if not any(o in ('+', '-') for o in ops):
+            ops[random.randrange(len(ops))] = random.choice(['+', '-'])
+
+        # ~50% chance of wrapping a sub-expression in brackets
+        use_brackets = (n >= 3) and (random.random() < 0.5)
+
+        if use_brackets:
+            # Pick how many numbers go inside brackets (2 or 3)
+            blen   = random.randint(2, min(3, n - 1))
+            bstart = random.randint(0, n - blen)
+            bend   = bstart + blen  # exclusive — nums[bstart:bend] are bracketed
+
+            # Ensure the bracket interior contains at least one +/-
+            # (makes it interesting for bracket_ignorer and distributor)
+            inner_ops = ops[bstart:bend - 1]
+            if not any(o in ('+', '-') for o in inner_ops) and inner_ops:
+                ops[bstart + random.randrange(len(inner_ops))] = random.choice(['+', '-'])
+
+            # Ensure there's a * adjacent to the bracket so the bracket placement
+            # creates a real precedence conflict with the outside
+            adj_has_mult = (
+                (bstart > 0 and ops[bstart - 1] == '*') or
+                (bend < n   and ops[bend - 1]   == '*')
+            )
+            if not adj_has_mult:
+                if bstart > 0:
+                    ops[bstart - 1] = '*'
+                else:
+                    ops[bend - 1] = '*'
+
+            # Build token string with brackets
+            parts = []
+            for i in range(n):
+                if i == bstart:
+                    parts.append('(')
+                parts.append(nums[i])
+                if i == bend - 1:
+                    parts.append(')')
+                if i < len(ops):
+                    parts.append(ops[i])
+            expr = ''.join(parts)
+        else:
+            parts = []
+            for i, num in enumerate(nums):
+                parts.append(num)
+                if i < len(ops):
+                    parts.append(ops[i])
+            expr = ''.join(parts)
+
+        # Validate tokenisation
+        try:
+            tokenize(expr)
+        except Exception:
+            continue
+
+        # Require at least one learner to differ from expert
+        try:
+            expert_states = [s['state'] for s in get_learner_trace(expr, 'expert')]
+            check_learners = ['addition_first', 'left_to_right_only', 'right_to_left']
+            if any(c in expr for c in '([{'):
+                check_learners.append('bracket_ignorer')
+            for name in check_learners:
+                try:
+                    if [s['state'] for s in get_learner_trace(expr, name)] != expert_states:
+                        return expr
+                except Exception:
+                    continue
+        except Exception:
+            continue
+
+    return '2+3*4'  # safe fallback
+
+
+def validate_equation(equation: str) -> str | None:
+    """
+    Try to tokenise the equation. Returns None if valid, or an error message.
+    """
+    from tokenizer import tokenize
+    try:
+        tokens = tokenize(equation.strip())
+        if not tokens:
+            return "Expression is empty."
+        return None
+    except Exception as e:
+        return f"Invalid expression: {e}"
+
+
 def get_learner_trace(expression: str, learner_name: str):
     """Get the full trace for a learner solving an expression."""
     learner = create_learner(learner_name)
     walker = LearnerGraphWalker(expression, learner)
     return walker.walk_deterministic()
+
+
+def walk_with_arithmetic_errors(expression: str, learner_name: str, error_prob: float = 0.25):
+    """
+    Walk a learner's trace, but with a probability of swapping the operator
+    at each evaluate step (e.g. computing a+b instead of a*b).
+
+    The error propagates: a wrong intermediate result becomes the input
+    for all subsequent steps, just like a real student's arithmetic slip.
+
+    Returns the same step format as walk_deterministic(), with an extra
+    'arithmetic_error' key on steps where a swap occurred.
+    """
+    from graph_builder2 import perform_operation
+    from tokenizer import tokenize
+    from learner_integration import extract_actions_from_tokens
+
+    OTHER_OPS = {'+': ['-', '*'], '-': ['+', '*'], '*': ['+', '-'], '/': ['+', '-']}
+
+    learner = create_learner(learner_name)
+    walker  = LearnerGraphWalker(expression, learner)
+    tokens  = tokenize(expression)
+    steps   = []
+
+    while len(tokens) > 1:
+        state       = tuple(tokens)
+        all_actions = extract_actions_from_tokens(tokens)
+        if not all_actions:
+            break
+
+        valid_actions = learner.valid_actions(state, all_actions)
+        chosen = valid_actions[0] if valid_actions else None
+
+        step = {
+            'state':        ''.join(tokens),
+            'tokens':       list(tokens),
+            'all_actions':  all_actions,
+            'valid_actions': valid_actions,
+            'chosen_action': chosen,
+            'arithmetic_error': False,
+        }
+        steps.append(step)
+
+        if not chosen:
+            break
+
+        # Possibly swap the operator for evaluate actions
+        if chosen.action_type == 'evaluate' and random.random() < error_prob:
+            swapped_op = random.choice(OTHER_OPS.get(chosen.operator, []))
+            try:
+                new_tokens = perform_operation(tokens, chosen.operator_index, swapped_op)
+                if new_tokens is not None:
+                    step['arithmetic_error'] = True
+                    step['swapped_op'] = swapped_op  # for explanation display
+                    tokens = new_tokens
+                    continue
+            except Exception:
+                pass  # fall through to normal execution
+
+        # Normal execution
+        new_tokens = walker._execute_action(list(tokens), chosen)
+        if new_tokens is None:
+            break
+        tokens = new_tokens
+
+    # Final state
+    if len(tokens) == 1:
+        steps.append({
+            'state':        ''.join(tokens),
+            'tokens':       list(tokens),
+            'all_actions':  [],
+            'valid_actions': [],
+            'chosen_action': None,
+            'arithmetic_error': False,
+            'is_final':     True,
+            'result':       float(tokens[0]),
+        })
+
+    return steps
 
 
 def format_trace(steps, show_all=True, show_first_n=None, show_last_n=None):
@@ -261,7 +444,11 @@ def describe_trace_divergences(steps, expert_walker):
                     )
 
             elif l_prec == e_prec and l_idx != e_idx:
-                if l_idx > e_idx and 'right_to_left' not in found:
+                # If both chose the same associative operator (+/*), order doesn't
+                # affect the result — skip flagging this as a divergence.
+                if l.operator == e.operator and l.operator in ('+', '*'):
+                    pass
+                elif l_idx > e_idx and 'right_to_left' not in found:
                     found['right_to_left'] = (
                         f"evaluated right to left instead of left to right "
                         f"(computed `{l_str}` before `{e_str}`)"
@@ -286,17 +473,29 @@ def _is_step_wrong(tokens, mystery_action, expert_walker) -> bool:
     """
     Returns True if mystery_action differs from what expert would choose
     at this token state (i.e. this step deviates from BODMAS).
+
+    Exception: if both learner and expert evaluate the same associative operator
+    (+ or *) at the same bracket depth, order doesn't affect the result — not wrong.
     """
     try:
         valid, _ = expert_walker.get_valid_actions_for_state(list(tokens))
         if not valid or not mystery_action:
             return True
         expert_action = valid[0]
-        return not (
-            mystery_action.action_type == expert_action.action_type
-            and mystery_action.operator == expert_action.operator
-            and mystery_action.operator_index == expert_action.operator_index
-        )
+        # Exact match — definitely not wrong
+        if (mystery_action.action_type == expert_action.action_type
+                and mystery_action.operator == expert_action.operator
+                and mystery_action.operator_index == expert_action.operator_index):
+            return False
+        # Same associative operator at the same depth → order doesn't matter
+        if (mystery_action.action_type == 'evaluate'
+                and expert_action.action_type == 'evaluate'
+                and mystery_action.operator == expert_action.operator
+                and mystery_action.operator in ('+', '*')
+                and _bracket_depth_at(tokens, mystery_action.operator_index)
+                    == _bracket_depth_at(tokens, expert_action.operator_index)):
+            return False
+        return True
     except Exception:
         return True
 
@@ -329,43 +528,74 @@ FORMAT_PARTIAL_START = "partial_start"
 FORMAT_PARTIAL_END   = "partial_end"
 
 
+ALL_QUIZ_OPTIONS = [
+    'expert', 'addition_first', 'multiplication_first',
+    'bracket_ignorer', 'left_to_right_only', 'right_to_left',
+]
+
+
 def generate_questions():
     return [
         # Full trace (5)
-        {'expression': '2+3*4',      'correct_learner': 'addition_first',    'format': FORMAT_FULL_TRACE,
-         'options': ['expert', 'addition_first', 'right_to_left']},
-        {'expression': '2*3+4*5',    'correct_learner': 'left_to_right_only','format': FORMAT_FULL_TRACE,
-         'options': ['expert', 'addition_first', 'left_to_right_only', 'right_to_left']},
-        {'expression': '10-2-3',     'correct_learner': 'right_to_left',     'format': FORMAT_FULL_TRACE,
-         'options': ['expert', 'right_to_left']},
-        {'expression': '5+2*(3+1)',  'correct_learner': 'bracket_ignorer',   'format': FORMAT_FULL_TRACE,
-         'options': ['expert', 'addition_first', 'bracket_ignorer']},
-        {'expression': '12/3+4*2',   'correct_learner': 'expert',            'format': FORMAT_FULL_TRACE,
-         'options': ['expert', 'addition_first', 'left_to_right_only', 'right_to_left']},
+        {'expression': '2+3*4',      'correct_learner': 'addition_first',     'format': FORMAT_FULL_TRACE},
+        {'expression': '2*3+4*5',    'correct_learner': 'left_to_right_only', 'format': FORMAT_FULL_TRACE},
+        {'expression': '10-2-3',     'correct_learner': 'right_to_left',      'format': FORMAT_FULL_TRACE},
+        {'expression': '5+2*(3+1)',  'correct_learner': 'bracket_ignorer',    'format': FORMAT_FULL_TRACE},
+        {'expression': '12/3+4*2',   'correct_learner': 'expert',             'format': FORMAT_FULL_TRACE},
         # Answer only (5)
-        {'expression': '12-3+4',     'correct_learner': 'right_to_left',     'format': FORMAT_ANSWER_ONLY,
-         'options': ['expert', 'right_to_left']},
-        {'expression': '20-4*3+2',   'correct_learner': 'addition_first',    'format': FORMAT_ANSWER_ONLY,
-         'options': ['expert', 'addition_first', 'left_to_right_only', 'right_to_left']},
-        {'expression': '8/4*2',      'correct_learner': 'multiplication_first','format': FORMAT_ANSWER_ONLY,
-         'options': ['expert', 'multiplication_first']},
-        {'expression': '4*(2+3)',     'correct_learner': 'bracket_ignorer',   'format': FORMAT_ANSWER_ONLY,
-         'options': ['expert', 'bracket_ignorer']},
-        {'expression': '15-3*2+4',   'correct_learner': 'left_to_right_only','format': FORMAT_ANSWER_ONLY,
-         'options': ['expert', 'addition_first', 'left_to_right_only', 'right_to_left']},
+        {'expression': '12-3+4',     'correct_learner': 'right_to_left',      'format': FORMAT_ANSWER_ONLY},
+        {'expression': '20-4*3+2',   'correct_learner': 'addition_first',     'format': FORMAT_ANSWER_ONLY},
+        {'expression': '8/4*2',      'correct_learner': 'multiplication_first','format': FORMAT_ANSWER_ONLY},
+        {'expression': '4*(2+3)',     'correct_learner': 'bracket_ignorer',    'format': FORMAT_ANSWER_ONLY},
+        {'expression': '15-3*2+4',   'correct_learner': 'left_to_right_only', 'format': FORMAT_ANSWER_ONLY},
         # Partial start (3)
-        {'expression': '10+2*3-4',   'correct_learner': 'expert',            'format': FORMAT_PARTIAL_START,
-         'options': ['expert', 'addition_first', 'left_to_right_only']},
-        {'expression': '3+6/2*4',    'correct_learner': 'multiplication_first','format': FORMAT_PARTIAL_START,
-         'options': ['expert', 'addition_first', 'multiplication_first']},
-        {'expression': '2*(3+4)-5',  'correct_learner': 'addition_first',    'format': FORMAT_PARTIAL_START,
-         'options': ['expert', 'addition_first', 'bracket_ignorer']},
+        {'expression': '10+2*3-4',   'correct_learner': 'expert',             'format': FORMAT_PARTIAL_START},
+        {'expression': '3+6/2*4',    'correct_learner': 'multiplication_first','format': FORMAT_PARTIAL_START},
+        {'expression': '2*(3+4)-5',  'correct_learner': 'addition_first',     'format': FORMAT_PARTIAL_START},
         # Partial end (2)
-        {'expression': '10/2/5',     'correct_learner': 'right_to_left',     'format': FORMAT_PARTIAL_END,
-         'options': ['expert', 'right_to_left']},
-        {'expression': '20/4/2',     'correct_learner': 'right_to_left',     'format': FORMAT_PARTIAL_END,
-         'options': ['expert', 'right_to_left']},
+        {'expression': '10/2/5',     'correct_learner': 'right_to_left',      'format': FORMAT_PARTIAL_END},
+        {'expression': '20/4/2',     'correct_learner': 'right_to_left',      'format': FORMAT_PARTIAL_END},
     ]
+
+
+def get_correct_learners(question):
+    """
+    Dynamically compute which learners in ALL_QUIZ_OPTIONS produce the same
+    visible output as the shown trace — so multiple learners can be correct
+    if they are indistinguishable given the information shown.
+    """
+    expr    = question['expression']
+    source  = question['correct_learner']
+    fmt     = question['format']
+
+    ref_steps  = get_learner_trace(expr, source)
+    ref_states = [s['state'] for s in ref_steps]
+    ref_answer = get_final_answer(ref_steps)
+
+    correct = []
+    for name in ALL_QUIZ_OPTIONS:
+        try:
+            s      = get_learner_trace(expr, name)
+            states = [x['state'] for x in s]
+            answer = get_final_answer(s)
+        except Exception:
+            continue
+
+        if fmt == FORMAT_FULL_TRACE:
+            match = (states == ref_states)
+        elif fmt == FORMAT_ANSWER_ONLY:
+            match = (answer == ref_answer)
+        elif fmt == FORMAT_PARTIAL_START:
+            match = (states[:2] == ref_states[:2] and answer == ref_answer)
+        elif fmt == FORMAT_PARTIAL_END:
+            match = (states[-2:] == ref_states[-2:])
+        else:
+            match = False
+
+        if match:
+            correct.append(name)
+
+    return correct
 
 
 # =============================================================================
@@ -425,13 +655,24 @@ def run_quiz_tab():
     st.markdown(f"**Question {current_q + 1} of {total_q}**")
 
     q = questions[current_q]
-    expression    = q['expression']
+    expression      = q['expression']
     correct_learner = q['correct_learner']
-    q_format      = q['format']
-    options       = q['options']
+    q_format        = q['format']
 
-    steps = get_learner_trace(expression, correct_learner)
+    steps        = get_learner_trace(expression, correct_learner)
     final_answer = get_final_answer(steps)
+
+    # Compute (and cache) which options are correct for this question
+    if f'correct_learners_{current_q}' not in st.session_state:
+        st.session_state[f'correct_learners_{current_q}'] = get_correct_learners(q)
+    correct_learners = st.session_state[f'correct_learners_{current_q}']
+
+    # Shuffle options once
+    if f'shuffled_options_{current_q}' not in st.session_state:
+        shuffled = ALL_QUIZ_OPTIONS.copy()
+        random.shuffle(shuffled)
+        st.session_state[f'shuffled_options_{current_q}'] = shuffled
+    shuffled_options = st.session_state[f'shuffled_options_{current_q}']
 
     st.markdown(f"### Expression: `{display_expr(expression)}`")
     st.markdown("---")
@@ -451,30 +692,23 @@ def run_quiz_tab():
         st.code(display_expr(format_trace(steps, show_all=False, show_last_n=2)), language=None)
 
     st.markdown("---")
-    st.markdown("**Which learner type is this?**")
+    st.markdown("**Which learner type(s) could this be? Select all that apply.**")
 
-    if f'shuffled_options_{current_q}' not in st.session_state:
-        shuffled = options.copy()
-        random.shuffle(shuffled)
-        st.session_state[f'shuffled_options_{current_q}'] = shuffled
-
-    shuffled_options = st.session_state[f'shuffled_options_{current_q}']
-
-    selected = st.radio(
-        "Select your answer:",
+    selected = st.multiselect(
+        "Select your answer(s):",
         shuffled_options,
         format_func=lambda x: LEARNER_SHORT_NAMES.get(x, x),
-        key=f"radio_{current_q}",
+        key=f"multi_{current_q}",
         disabled=st.session_state.revealed,
     )
-    st.session_state.selected_answer = selected
 
     col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
         if st.button("Reveal Answer", disabled=st.session_state.revealed):
             st.session_state.revealed = True
-            if selected == correct_learner and not st.session_state.answered[current_q]:
-                st.session_state.score += 1
+            if not st.session_state.answered[current_q]:
+                if set(selected) == set(correct_learners):
+                    st.session_state.score += 1
             st.session_state.answered[current_q] = True
             st.rerun()
     with col3:
@@ -482,7 +716,6 @@ def run_quiz_tab():
             if st.button("Next Question ->"):
                 st.session_state.current_q += 1
                 st.session_state.revealed = False
-                st.session_state.selected_answer = None
                 st.rerun()
         else:
             if st.button("See Results"):
@@ -491,12 +724,24 @@ def run_quiz_tab():
 
     if st.session_state.revealed:
         st.markdown("---")
-        if selected == correct_learner:
-            st.success(f"Correct! This is the **{LEARNER_SHORT_NAMES[correct_learner]}** learner.")
+        correct_names = [LEARNER_SHORT_NAMES.get(l, l) for l in correct_learners]
+        if set(selected) == set(correct_learners):
+            st.success(f"Correct! Valid answer(s): **{', '.join(correct_names)}**")
         else:
-            st.error(f"Incorrect. This is the **{LEARNER_SHORT_NAMES[correct_learner]}** learner.")
+            selected_names = [LEARNER_SHORT_NAMES.get(s, s) for s in selected] if selected else ['(nothing)']
+            st.error(
+                f"Not quite. You selected: **{', '.join(selected_names)}**. "
+                f"Valid answer(s): **{', '.join(correct_names)}**"
+            )
+            if len(correct_learners) > 1:
+                st.info(
+                    f"Note: {len(correct_learners)} learners produce the same "
+                    f"{'trace' if q_format == FORMAT_FULL_TRACE else 'visible output'} "
+                    f"for this expression — all are valid."
+                )
         with st.expander("See full trace and explanation", expanded=True):
-            st.markdown(f"**Learner:** {LEARNER_DESCRIPTIONS[correct_learner]}")
+            for name in correct_learners:
+                st.markdown(f"**{LEARNER_SHORT_NAMES.get(name, name)}:** {LEARNER_DESCRIPTIONS.get(name, '')}")
             st.markdown("**Complete trace:**")
             st.code(display_expr(format_trace(steps, show_all=True)), language=None)
 
@@ -523,19 +768,46 @@ def run_quiz_tab():
 def run_diagnostic_tab():
     st.markdown("Enter any arithmetic expression. A randomly chosen learner's trace will be shown — figure out which of the two described learners produced it.")
 
-    equation_input = st.text_input(
-        "Equation:",
-        placeholder="e.g.  3 + 4 * 2   or   5 + 2*(3+1)",
-        key="diag_eq_input",
+    # If Random was clicked, pre-fill the text box with the generated equation
+    if "diag_eq_prefill" in st.session_state:
+        st.session_state["diag_eq_input"] = st.session_state.pop("diag_eq_prefill")
+
+    col_input, col_btn = st.columns([4, 1])
+    with col_input:
+        equation_input = st.text_input(
+            "Equation:",
+            placeholder="e.g.  3 + 4 * 2   or   5 + 2*(3+1)",
+            key="diag_eq_input",
+        )
+    with col_btn:
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("Random", key="diag_random_btn"):
+            rand_eq = generate_random_equation()
+            # Clear all diag state, then pre-fill and auto-run with the new equation
+            for k in list(st.session_state.keys()):
+                if k.startswith("diag_"):
+                    del st.session_state[k]
+            st.session_state.diag_eq_prefill = rand_eq
+            st.session_state.diag_eq = rand_eq
+            st.session_state.diag_ready = True
+            st.rerun()
+
+    arith_errors = st.checkbox(
+        "Include arithmetic mistakes (learner occasionally swaps the operator)",
+        key="diag_arith_errors",
     )
 
     if st.button("Run", key="diag_run_btn"):
         if not equation_input.strip():
             st.warning("Please enter an equation first.")
             return
+        err = validate_equation(equation_input.strip())
+        if err:
+            st.error(err)
+            return
         # Reset diagnostic state whenever a new equation is submitted
         for k in list(st.session_state.keys()):
-            if k.startswith("diag_"):
+            if k.startswith("diag_") and k != "diag_arith_errors":
                 del st.session_state[k]
         st.session_state.diag_eq = equation_input.strip()
         st.session_state.diag_ready = True
@@ -598,12 +870,38 @@ def run_diagnostic_tab():
             candidates_diff = [k for k in candidates_diff if k != 'bracket_ignorer']
 
         mystery = random.choice(candidates_diff) if candidates_diff else random.choice(candidates)
-        mystery_ans = all_results[mystery]["answer"]
+        mystery_states = [s["state"] for s in all_results[mystery]["steps"]]
 
-        # Foil: prefer a different final answer
-        foils_diff = [k for k in candidates if k != mystery and all_results[k]["answer"] != mystery_ans]
-        foils_same = [k for k in candidates if k != mystery]
-        foil = random.choice(foils_diff) if foils_diff else random.choice(foils_same)
+        # Build the foil pool with the same guards applied (so the foil's defining
+        # behaviour is also visible in this expression).
+        foil_pool = [k for k in candidates if k != mystery]
+        if not has_dist:
+            foil_pool = [k for k in foil_pool if k != 'distributor']
+        if has_any_brackets and not has_dist:
+            foil_pool = [k for k in foil_pool if k != 'multiplication_first']
+        if not has_any_brackets:
+            foil_pool = [k for k in foil_pool if k != 'bracket_ignorer']
+        if not foil_pool:
+            foil_pool = [k for k in candidates if k != mystery]
+
+        # Prefer a foil whose trace differs from the mystery learner's trace.
+        # (A learner who reaches the same answer via a different path is still a
+        # valid, diagnostically interesting foil — don't filter by answer.)
+        def _differs_from_mystery(name):
+            return [s["state"] for s in all_results[name]["steps"]] != mystery_states
+
+        foils_diff_trace = [k for k in foil_pool if _differs_from_mystery(k)]
+        foil_candidates  = foils_diff_trace if foils_diff_trace else foil_pool
+
+        # Among trace-different foils, prefer ones with a different description
+        # so the binary choice presents two visually distinct behaviours.
+        expert_walker_tmp = LearnerGraphWalker(equation, create_learner("expert"))
+        mystery_desc = describe_trace_divergences(all_results[mystery]["steps"], expert_walker_tmp)
+        foils_diff_desc = [
+            k for k in foil_candidates
+            if describe_trace_divergences(all_results[k]["steps"], expert_walker_tmp) != mystery_desc
+        ]
+        foil = random.choice(foils_diff_desc) if foils_diff_desc else random.choice(foil_candidates)
 
         options = [mystery, foil]
         random.shuffle(options)
@@ -617,7 +915,12 @@ def run_diagnostic_tab():
     mystery = st.session_state.diag_mystery
     foil    = st.session_state.diag_foil
     options = st.session_state.diag_options
-    mystery_steps = results[mystery]["steps"]
+
+    # Use arithmetic-error trace if the checkbox is on, otherwise the clean trace
+    if st.session_state.get("diag_arith_errors"):
+        mystery_steps = walk_with_arithmetic_errors(equation, mystery)
+    else:
+        mystery_steps = results[mystery]["steps"]
 
     # ── Answer summary table ───────────────────────────────────────────────
     st.markdown("#### All Learner Answers")
@@ -650,20 +953,27 @@ def run_diagnostic_tab():
             mystery: describe_trace_divergences(results[mystery]["steps"], expert_walker),
             foil:    describe_trace_divergences(results[foil]["steps"],    expert_walker),
         }
-    desc_map = st.session_state.diag_desc_map
+    desc_map = dict(st.session_state.diag_desc_map)  # shallow copy so we can augment
+
+    # If arithmetic errors are on and the mystery trace has any swapped operators,
+    # append a note to the mystery learner's description
+    if st.session_state.get("diag_arith_errors"):
+        if any(s.get("arithmetic_error") for s in mystery_steps):
+            desc_map[mystery] = desc_map[mystery] + "; also has made an arithmetic mistake — swapped an operator"
 
     trace_rows = _build_trace_rows(mystery_steps, expert_walker)
 
     if trace_rows:
         lines = [display_expr(trace_rows[0][0])]  # always show starting state
-        for curr_state, action_desc, next_state, wrong in trace_rows:
+        for i, (curr_state, action_desc, next_state, wrong) in enumerate(trace_rows):
+            arith_err = mystery_steps[i].get("arithmetic_error", False)
             lines.append("  ↓")
-            if wrong:
+            if wrong or arith_err:
                 lines.append("  ████████████████████")
             else:
                 lines.append(display_expr(next_state))
-        # If the last step was blacked out, still show the final answer with an arrow
-        if trace_rows and trace_rows[-1][3]:
+        # If the last step was blacked out, still show the final answer
+        if trace_rows and (trace_rows[-1][3] or mystery_steps[len(trace_rows)-1].get("arithmetic_error")):
             lines.append("  ↓")
             lines.append(display_expr(mystery_steps[-1]["state"]))
         st.code("\n".join(lines), language=None)
